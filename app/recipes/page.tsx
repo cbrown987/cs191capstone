@@ -8,15 +8,8 @@ const Recipes: React.FC = () => {
     const query = searchParams.get('query');
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <h1>Search Results</h1>
-            {query ? (
-                <p>Showing results for: <strong>{query}</strong></p>
-            ) : (
-                <p>No search query provided.</p>
-            )}
-            {/* Here, add logic to fetch and display your search results */}
-        </div>
+        <>
+        </>
     );
 };
 
