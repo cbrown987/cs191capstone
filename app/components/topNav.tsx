@@ -3,7 +3,7 @@
 // components/TopNav.tsx
 import Link from 'next/link';
 import React from 'react';
-import SearchBar from './searchBar';
+import SearchBar from "@/app/components/search";
 
 const TopNav: React.FC = () => {
     return (
@@ -17,11 +17,6 @@ const TopNav: React.FC = () => {
                 <li>
                     <Link href="/recipes" style={{ color: '#fff', textDecoration: 'none' }}>
                         Recipes
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/about" style={{ color: '#fff', textDecoration: 'none' }}>
-                        About
                     </Link>
                 </li>
             </ul>

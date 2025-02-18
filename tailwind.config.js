@@ -7,10 +7,15 @@ module.exports = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      colors: {
+        // Base colors for a clean, modern look
+        background: '#FFFFFF',    // or use bg-gray-50 for an off-white
+        primaryText: '#1F2937',   // equivalent to text-gray-900 for clear text
+        secondaryText: '#374151', // a slightly lighter tone for secondary text
+
+        // Death & Co-inspired accent colors
+        accentAmber: '#F59E0B',   // bold amber for interactive elements
+        accentIndigo: '#6366F1',  // subtle indigo for hover states or secondary accents
       },
     },
   },

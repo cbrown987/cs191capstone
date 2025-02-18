@@ -9,7 +9,7 @@ const SearchBar: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        router.push(`/search?query=${encodeURIComponent(query)}`);
+        router.push(`/recipes/${encodeURIComponent(query)}`);
     };
 
     return (
