@@ -1,26 +1,23 @@
-import './globals.css'
-import { Inter } from 'next/font/google'
+"use client";
+import { useEffect, useState } from "react";
 import TopNav from "@/app/components/topNav";
-import React from "react";
 
-const inter = Inter({ subsets: ['latin'] })
+const Layout = ({ children }: { children: React.ReactNode }) => {
+    const [user, setUser] = useState<string | null>(null);
 
-export const metadata = {
-  title: 'Rubarb',
-  description: 'the recipe site of the future',
-}
+    useEffect(() => {
+        const storedUser = localStorage.getItem("username");
+        if (storedUser) setUser(storedUser);
+    }, []);
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-        <body className={`accent-background p-4 text-gray-900`}>
-            <TopNav />
-            {children}
-        </body>
-    </html>
-  )
-}
+    return (
+        <html lang="en">
+            <body className="min-h-screen bg-gray-100">
+                <TopNav />
+                <main className="container mx-auto p-4">{children}</main>
+            </body>
+        </html>
+    );
+};
+
+export default Layout;
