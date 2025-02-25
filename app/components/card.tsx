@@ -1,16 +1,16 @@
 import Image from 'next/image';
 import React from "react";
-
-interface CardProps {
-    imageSrc: string;
-    title: string;
-    description: string;
-}
+import {CardProps} from "@/app/interfaces";
 
 const Card: React.FC<CardProps> = ({ imageSrc, title, description }) => {
     return (
-        <div className="max-w-sm bg-white border rounded-lg shadow-lg overflow-hidden">
-            {/* Image */}
+        <div className="bg-white text-gray-900 min-h-screen p-8 font-playfair max-w-4xl mx-auto border-deco">
+            <header className="text-center mb-8">
+                <h2 className="text-4xl md:text-5xl font-bold uppercase tracking-wide">
+                    {title}
+                </h2>
+            </header>
+
             <Image
                 src={imageSrc}
                 alt={title}
@@ -19,9 +19,7 @@ const Card: React.FC<CardProps> = ({ imageSrc, title, description }) => {
                 className="w-full h-48 object-cover"
             />
 
-            {/* Text Section */}
             <div className="p-4">
-                <h2 className="text-xl font-semibold">{title}</h2>
                 <p className="text-gray-600 mt-2">{description}</p>
             </div>
         </div>

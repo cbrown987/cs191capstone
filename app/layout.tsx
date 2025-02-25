@@ -1,18 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
+import './globals.css'
+
 import TopNav from "@/app/components/topNav";
+import {useUser} from "@/app/hooks/Auth";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<string | null>(null);
-
-    useEffect(() => {
-        const storedUser = localStorage.getItem("username");
-        if (storedUser) setUser(storedUser);
-    }, []);
+      const { user } = useUser();
 
     return (
         <html lang="en">
-            <body className="min-h-screen bg-gray-100">
+            <body className={`accent-background p-4 text-gray-900`}>
                 <TopNav />
                 <main className="container mx-auto p-4">{children}</main>
             </body>
