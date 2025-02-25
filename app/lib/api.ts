@@ -4,7 +4,7 @@
  */
 export async function getApi(url: string): Promise<any> {
     const response = await fetch(url);
-    if (!response.ok) {
+    if (response.ok) {
         return await response.json();
     }
     throw new Error(response.statusText);
