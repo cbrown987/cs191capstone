@@ -1,53 +1,41 @@
 from flask import Flask, jsonify
 
+from api.endpoints.base import standardize_api
+from api.endpoints.thedb import TheMealDB, TheCocktailDB
+
 app = Flask(__name__)
 
-@app.route('/api/recipes', methods=['GET', 'POST'])
-def recipes():
-    default = [
-        {
-            "id": 1,
-            "name": "French Fries",
-            "description": "potatos fried",
-            "type": "food"
-        },
-        {
-            "id": 2,
-            "name": "Mystery Meat",
-            "description": "Possibly chicken, possibly not—it's the culinary equivalent of a plot twist.",
-            "type": "food"
+@app.route('/api/food/recipes', methods=['GET', 'POST'])
+@standardize_api
+def food_recipes():
+    """
+    Get 10 random food recipes
+    """
+    return TheMealDB().get_10_random()
 
-        },
-        {
-            "id": 3,
-            "name": "Invisible Salad",
-            "description": "A salad so elusive, even your fork can't find it.",
-            "type": "food"
+@app.route('/api/food/recipes/<int:id>', methods=['GET', 'POST'])
+@standardize_api
+def food_recipe(query_id):
+    return TheMealDB().search_by_id(query_id)
 
-        },
-        {
-            "id": 4,
-            "name": "Dragon Breath Chili Cocktail",
-            "description": "So spicy, you'll breathe fire (or at least wish you could).",
-            "type": "drink"
+@app.route('/api/drink/recipes', methods=['GET', 'POST'])
+@standardize_api
+def drink_recipes():
+    """
+    Get 10 random drink recipes
+    """
+    return TheCocktailDB().get_10_random()
 
-        },
-        {
-            "id": 5,
-            "name": "Unicorn Milkshake",
-            "description": "Rainbow-colored and magically delicious, but may cause sudden bursts of glitter.",
-            "type": "drink"
-    }
-    ]
+@app.route('/api/drink/recipes/<int:id>', methods=['GET', 'POST'])
+@standardize_api
+def drink_recipe(query_id):
+    return TheCocktailDB().search_by_id(query_id)
 
-    return jsonify(default)
 
-@app.route('/api/recipes/<int:id>', methods=['GET', 'POST'])
-def recipe(id):
-    # Get a specific recipe by ID
-    pass
+
 
 @app.route('/api/ingredients/', methods=['GET', 'POST'])
+@standardize_api
 def ingredients():
     # POST: submit or edit ingredients
     # GET retrieve the user's ingredients saved

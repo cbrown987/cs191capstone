@@ -1,6 +1,5 @@
 from api.endpoints.base import BaseDB
 
-
 class BaseTheDB(BaseDB):
     """
     Abstract base class for both TheMealDB and TheCocktailDB API clients.
@@ -77,6 +76,22 @@ class TheMealDB(BaseTheDB):
         route = "/lookup.php?i="
         return self.get(route + str(query))
 
+    def get_10_random(self):
+        """
+        Because we do not have a premium API we can mock it here. This function is not sutible for scale.
+        """
+        # This is hacky and not very nice. But we need 10 and we don't want duplicates
+        _recipes = []
+        seen_ids = set()
+        for _ in range(10):
+            response = self.get_one_random()
+            if response and "meals" in response and response["meals"]:
+                recipe_id = response["meals"][0]["idMeal"]
+                if recipe_id not in seen_ids:
+                    seen_ids.add(recipe_id)
+                    _recipes.append(response)
+        return _recipes
+
 
 class TheCocktailDB(BaseTheDB):
     """Client for TheCocktailDB API."""
@@ -133,3 +148,19 @@ class TheCocktailDB(BaseTheDB):
 
     def list_all_glasses(self):
         return self.get("list.php?g=list")
+
+    def get_10_random(self):
+        """
+        Because we do not have a premium API we can mock it here. This function is not sutible for scale.
+        """
+        # This is hacky and not very nice. But we need 10 and we don't want duplicates
+        _recipes = []
+        seen_ids = set()
+        for _ in range(10):
+            response = self.get_one_random()
+            if response and "drinks" in response and response["drinks"]:
+                recipe_id = response["drinks"][0]["idDrink"]
+                if recipe_id not in seen_ids:
+                    seen_ids.add(recipe_id)
+                    _recipes.append(response)
+        return _recipes
