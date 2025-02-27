@@ -1,22 +1,11 @@
+
 import {MenuLink} from "@/app/components/menu/menuLink";
 import {getApi} from "@/app/lib/api";
 import { use } from "react";
 
 export const Menu = () => {
-    let response = use(getApi("http://127.0.0.1:5328/api/recipes"))
-    let food_items = [];
-    let drink_items = [];
-    for (const rKey in response) {
-        response[rKey]['id'] = "/" + response[rKey]["type"] + response[rKey]['id']
-        let type = response[rKey]["type"]
-        if(type === "food"){
-            food_items.push(response[rKey])
-        }
-        else if (type === "drink"){
-            drink_items.push(response[rKey])
-        }
-
-    }
+    let food_items: any[] = use(getApi("http://127.0.0.1:5328/api/food/recipes"));
+    let drink_items: any[] = use(getApi("http://127.0.0.1:5328/api/drink/recipes"))
     return (
         <>
         <div className="max-w-4xl mx-auto border-deco">
@@ -42,7 +31,7 @@ export const Menu = () => {
                     </h2>
                     <ul className="space-y-2">
                         {food_items.map(item =>
-                            <MenuLink linkText={item['name']} link={item['id']} description={item['description']} />
+                            <MenuLink linkText={item['title']} link={item['id']} description={"food"} />
                         )}
                     </ul>
                 </div>
@@ -64,7 +53,7 @@ export const Menu = () => {
                     </h2>
                     <ul className="space-y-2">
                         {drink_items.map(item =>
-                            <MenuLink linkText={item['name']} link={item['id']} description={item['description']}/>
+                            <MenuLink linkText={item['title']} link={item['id']} description={"drink"}/>
                         )}
                     </ul>
                 </div>
