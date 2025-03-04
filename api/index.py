@@ -15,8 +15,8 @@ def food_recipes():
 
 @app.route('/api/food/recipes/<int:id>', methods=['GET', 'POST'])
 @standardize_api
-def food_recipe(query_id):
-    return TheMealDB().search_by_id(query_id)
+def food_recipe(id):
+    return TheMealDB().search_by_id(id)
 
 @app.route('/api/drink/recipes', methods=['GET', 'POST'])
 @standardize_api
@@ -28,8 +28,8 @@ def drink_recipes():
 
 @app.route('/api/drink/recipes/<int:id>', methods=['GET', 'POST'])
 @standardize_api
-def drink_recipe(query_id):
-    return TheCocktailDB().search_by_id(query_id)
+def drink_recipe(id):
+    return TheCocktailDB().search_by_id(id)
 
 
 

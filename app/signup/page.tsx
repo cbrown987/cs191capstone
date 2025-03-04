@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signup } from "@/api/api";
+// import { signup } from "@/api/api";
 
 const SignupPage = () => {
     const [username, setUsername] = useState("");
@@ -10,13 +10,13 @@ const SignupPage = () => {
     const router = useRouter();
 
     const handleSignup = async () => {
-        const response = await signup(username, email, password);
-        if (response.success) {
-            alert("Signup successful! Please log in.");
-            router.push("/login");
-        } else {
-            alert("Signup failed. Try again.");
-        }
+        // const response = await signup(username, email, password);
+        // if (response.success) {
+        //     alert("Signup successful! Please log in.");
+        //     router.push("/login");
+        // } else {
+        //     alert("Signup failed. Try again.");
+        // }
     };
 
     return (

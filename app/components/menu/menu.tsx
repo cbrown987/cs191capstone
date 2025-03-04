@@ -4,8 +4,9 @@ import {getApi} from "@/app/lib/api";
 import { use } from "react";
 
 export const Menu = () => {
-    let food_items: any[] = use(getApi("http://127.0.0.1:5328/api/food/recipes"));
-    let drink_items: any[] = use(getApi("http://127.0.0.1:5328/api/drink/recipes"))
+    const cacheTime = 86400 // Cache for 24 hours
+    let food_items: any[] = use(getApi("http://127.0.0.1:5328/api/food/recipes", cacheTime));
+    let drink_items: any[] = use(getApi("http://127.0.0.1:5328/api/drink/recipes", cacheTime));
     return (
         <>
         <div className="max-w-4xl mx-auto border-deco">
@@ -53,7 +54,7 @@ export const Menu = () => {
                     </h2>
                     <ul className="space-y-2">
                         {drink_items.map(item =>
-                            <MenuLink linkText={item['title']} link={item['id']} description={"drink"}/>
+                            <MenuLink linkText={item['title']} link={item['id']} description={"drinks"}/>
                         )}
                     </ul>
                 </div>

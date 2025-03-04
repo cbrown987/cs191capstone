@@ -9,3 +9,13 @@ export interface MenuLinkProps {
     link: string;
     description: string;
 }
+
+export interface RecipeComponentProps {
+    id: string;
+    title: string;
+    description: string;
+    instructions: string;
+    imageURL: string;
+    ingredients: any;
+    type: string;
+}

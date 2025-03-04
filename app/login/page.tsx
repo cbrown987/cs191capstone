@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/api/api";
+// import { login } from "../lib/api";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -9,13 +9,13 @@ const LoginPage = () => {
     const router = useRouter();
 
     const handleLogin = async () => {
-        const response = await login(email, password);
-        if (response.success) {
-            localStorage.setItem("username", response.username);
-            router.push("/"); 
-        } else {
-            alert("Login failed. Please check credentials.");
-        }
+        // const response = await login(email, password);
+        // if (response.success) {
+        //     localStorage.setItem("username", response.username);
+        //     router.push("/");
+        // } else {
+        //     alert("Login failed. Please check credentials.");
+        // }
     };
 
     return (
