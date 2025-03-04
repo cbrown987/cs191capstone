@@ -1,4 +1,4 @@
-import {getApi} from "@/app/lib/api";
+import {callApiWithID} from "@/app/lib/api";
 import {RecipeComponent} from "@/app/components/RecipeComponent/RecipeComponent";
 
 /**
@@ -7,7 +7,7 @@ import {RecipeComponent} from "@/app/components/RecipeComponent/RecipeComponent"
  */
 export default async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id
-  const recipie =  await getApi("http://127.0.0.1:5328/api/drink/recipes/" + id)
+  const recipie =  await callApiWithID("C", id)
 
   return(
     <>
