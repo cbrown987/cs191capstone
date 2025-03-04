@@ -11,7 +11,7 @@ def food_recipes():
     """
     Get 10 random food recipes
     """
-    return TheMealDB().get_10_random()
+    return TheMealDB().get_n_random(4)
 
 @app.route('/api/food/recipes/<int:id>', methods=['GET', 'POST'])
 @standardize_api
@@ -24,14 +24,12 @@ def drink_recipes():
     """
     Get 10 random drink recipes
     """
-    return TheCocktailDB().get_10_random()
+    return TheCocktailDB().get_n_random(4)
 
 @app.route('/api/drink/recipes/<int:id>', methods=['GET', 'POST'])
 @standardize_api
 def drink_recipe(id):
     return TheCocktailDB().search_by_id(id)
-
-
 
 
 @app.route('/api/ingredients/', methods=['GET', 'POST'])
