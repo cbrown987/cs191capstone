@@ -76,7 +76,7 @@ class TheMealDB(BaseTheDB):
         route = "lookup.php?i="
         return self.get(route + str(query))
 
-    def get_10_random(self):
+    def get_n_random(self, n):
         """
         Because we do not have a premium API we can mock it here. This function is not sutible for scale.
         """
@@ -149,11 +149,11 @@ class TheCocktailDB(BaseTheDB):
     def list_all_glasses(self):
         return self.get("list.php?g=list")
 
-    def get_10_random(self):
+    def get_n_random(self, n):
         """
         Because we do not have a premium API we can mock it here. This function is not sutible for scale.
         """
-        # This is hacky and not very nice. But we need 10 and we don't want duplicates
+        # This is hacky and not very nice. But we need around 10, and we don't want duplicates
         _recipes = []
         seen_ids = set()
         for _ in range(10):
