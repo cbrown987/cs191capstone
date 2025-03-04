@@ -73,7 +73,7 @@ class TheMealDB(BaseTheDB):
         return self.get(route)
 
     def search_by_id(self, query):
-        route = "/lookup.php?i="
+        route = "lookup.php?i="
         return self.get(route + str(query))
 
     def get_10_random(self):
@@ -110,7 +110,7 @@ class TheCocktailDB(BaseTheDB):
         return self.get(route)
 
     def search_by_id(self, query):
-        return self._search_by(query)
+        return self._search_by(str(query))
 
     def search_ingredient(self, ingredient):
         return self._search_by(ingredient)
