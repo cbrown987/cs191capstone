@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from functools import wraps
 from flask import jsonify
 from jsonschema import validate
