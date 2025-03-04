@@ -45,7 +45,7 @@ class BaseTheDB(BaseDB):
     def list_all_ingredients(self):
         return self.get("list.php?i=list")
 
-    def search_by_category(self, category):
+    def list_by_category(self, category):
         route = "filter.php?c=" + category
         return self.get(route)
 
@@ -112,7 +112,7 @@ class TheCocktailDB(BaseTheDB):
     def search_by_id(self, query):
         return self._search_by(str(query))
 
-    def search_ingredient(self, ingredient):
+    def search_by_ingredient(self, ingredient):
         return self._search_by(ingredient)
 
     def search_ingredient_by_name(self, ingredient):

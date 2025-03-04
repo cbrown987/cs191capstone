@@ -1,7 +1,11 @@
+from abc import abstractmethod
 from functools import wraps
 from flask import jsonify
 from jsonschema import validate
 import requests
+
+from api.util.exceptions import APINotImplementedException
+
 
 class BaseDB:
     """Abstract class for API calls"""
@@ -17,7 +21,7 @@ class BaseDB:
         """
         url = "https://" + self.endpoint + route
         responce = requests.get(url, self.headers)
-        if responce.status_code != 200:
+        if responce.status_code != requests.codes.ok:
             raise Exception(responce.status_code)
         return self.decode(responce)
 
@@ -28,10 +32,22 @@ class BaseDB:
         """
         raise NotImplementedError()
 
-    def get_image(self):
+    def get_image(self, query):
         """An abstract get image function. Must be defined in subclasses."""
         raise NotImplementedError()
 
+    # Abstract functions that we want to be able to check if are implemented for All API calls
+    def search_by_name(self, query):
+        raise APINotImplementedException()
+
+    def get_one_random(self):
+        raise APINotImplementedException()
+
+    def search_by_id(self, query):
+        raise APINotImplementedException()
+
+    def get_n_random(self, n):
+        raise APINotImplementedException()
 
 
 class StandardizeAPI:
