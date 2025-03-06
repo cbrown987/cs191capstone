@@ -1,12 +1,34 @@
-
 import {MenuLink} from "@/app/components/menu/menuLink";
 import {getApi} from "@/app/lib/api";
-import { use } from "react";
 
-export const Menu = () => {
-    const cacheTime = 86400 // Cache for 24 hours
-    let food_items: any[] = use(getApi("/api/food/recipes", cacheTime));
-    let drink_items: any[] = use(getApi("/api/drink/recipes", cacheTime));
+// Use React's suspense feature correctly by moving the data fetching outside the component
+const getFoodItems = getApi("/api/food/recipes", 86400); // Cache for 24 hours
+const getDrinkItems = getApi("/api/drink/recipes", 86400); // Cache for 24 hours
+
+export const Menu = async () => {
+    // Await both requests together with proper error handling
+    const [foodItemsResult, drinkItemsResult] = await Promise.allSettled([
+        getFoodItems,
+        getDrinkItems
+    ]);
+
+    // Extract data or use empty arrays as fallbacks
+    const food_items = foodItemsResult.status === 'fulfilled' ? (foodItemsResult.value || []) : [];
+    const drink_items = drinkItemsResult.status === 'fulfilled' ? (drinkItemsResult.value || []) : [];
+
+    // Log any errors that occurred
+    if (foodItemsResult.status === 'rejected') {
+        console.error("Failed to fetch food items:", foodItemsResult.reason);
+    }
+
+    if (drinkItemsResult.status === 'rejected') {
+        console.error("Failed to fetch drink items:", drinkItemsResult.reason);
+    }
+
+    // Check if we have any data to display
+    const hasFoodItems = Array.isArray(food_items) && food_items.length > 0;
+    const hasDrinkItems = Array.isArray(drink_items) && drink_items.length > 0;
+
     return (
         <>
         <div className="max-w-4xl mx-auto border-deco">
@@ -31,8 +53,17 @@ export const Menu = () => {
                         Bites
                     </h2>
                     <ul className="space-y-2">
-                        {food_items.map(item =>
-                            <MenuLink linkText={item['title']} link={item['id']} description={"food"} />
+                        {hasFoodItems ? (
+                            food_items.map((item, index) => (
+                                <MenuLink
+                                    key={item['id'] || index}
+                                    linkText={item['title'] || 'Unnamed Item'}
+                                    link={item['id'] || '#'}
+                                    description={"food"}
+                                />
+                            ))
+                        ) : (
+                            <li className="text-gray-500 italic">No food items available at the moment</li>
                         )}
                     </ul>
                 </div>
@@ -53,13 +84,22 @@ export const Menu = () => {
                         Drinks
                     </h2>
                     <ul className="space-y-2">
-                        {drink_items.map(item =>
-                            <MenuLink linkText={item['title']} link={item['id']} description={"drinks"}/>
+                        {hasDrinkItems ? (
+                            drink_items.map((item, index) => (
+                                <MenuLink
+                                    key={item['id'] || index}
+                                    linkText={item['title'] || 'Unnamed Item'}
+                                    link={item['id'] || '#'}
+                                    description={"drinks"}
+                                />
+                            ))
+                        ) : (
+                            <li className="text-gray-500 italic">No drink items available at the moment</li>
                         )}
                     </ul>
                 </div>
             </div>
         </div>
-    </>
+        </>
     );
-};
+}
