@@ -1,3 +1,5 @@
+import {IngredientComponent} from "@/app/components/IngredentComponent/IngredientComponent";
+
 export interface CardProps {
     imageSrc: string;
     title: string;
@@ -18,4 +20,11 @@ export interface RecipeComponentProps {
     imageURL: string;
     ingredients: any;
     type: string;
+}
+
+export interface IngredientComponentProps {
+    id: string;
+    name: string;
+    description: string;
+    imageURL: string;
 }

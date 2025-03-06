@@ -1,4 +1,4 @@
-import {callApiWithID, getApi} from "@/app/lib/api";
+import {callRecipeApiWithID, getApi} from "@/app/lib/api";
 import {RecipeComponent} from "@/app/components/RecipeComponent/RecipeComponent";
 
 /**
@@ -7,7 +7,7 @@ import {RecipeComponent} from "@/app/components/RecipeComponent/RecipeComponent"
  */
 export default async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id
-  const recipie =  await callApiWithID("M", id)
+  const recipie =  await callRecipeApiWithID("M", id)
 
   return(
     <>

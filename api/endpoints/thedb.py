@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from api.endpoints.base import BaseDB
 
 class BaseTheDB(BaseDB):
@@ -92,6 +94,52 @@ class TheMealDB(BaseTheDB):
                     _recipes.append(response)
         return _recipes
 
+    def _refresh_ingredients_cache(self):
+        """Helper method to refresh the ingredients cache"""
+        all_ingredients = self.list_all_ingredients()
+        self._ingredients_dict = {
+            ingredient['strIngredient'].lower(): ingredient
+            for ingredient in all_ingredients['meals']
+        }
+        self._ingredients_dict_by_id = {
+            str(i): ingredient
+            for i, ingredient in enumerate(all_ingredients['meals'])
+        }
+        self._ingredients_cache_time = datetime.now()
+        return all_ingredients
+
+    def _get_ingredient_by_name(self, name):
+        """
+        Gets an ingredient by name (case-insensitive).
+        Uses dictionary-based lookup with daily refresh for better performance.
+        """
+        current_time = datetime.now()
+
+        if (not hasattr(self, '_ingredients_dict') or
+                not hasattr(self, '_ingredients_cache_time') or
+                current_time - self._ingredients_cache_time > timedelta(days=1)):
+            self._refresh_ingredients_cache()
+
+        return self._ingredients_dict.get(name.lower())
+
+    def get_ingredient_by_id(self, i_id):
+        """
+        Gets an ingredient by ID. Uses the shared cache for better performance.
+        """
+        current_time = datetime.now()
+
+        if (not hasattr(self, '_ingredients_dict') or
+                not hasattr(self, '_ingredients_dict_by_id') or
+                not hasattr(self, '_ingredients_cache_time') or
+                current_time - self._ingredients_cache_time > timedelta(days=1)):
+            all_ingredients = self._refresh_ingredients_cache()
+            return all_ingredients['meals'][int(i_id)] if i_id.isdigit() else self._get_ingredient_by_name(i_id)
+
+        if i_id.isdigit():
+            return self._ingredients_dict_by_id.get(i_id)
+        else:
+            return self._get_ingredient_by_name(i_id)
+
 
 class TheCocktailDB(BaseTheDB):
     """Client for TheCocktailDB API."""
@@ -119,7 +167,7 @@ class TheCocktailDB(BaseTheDB):
         route = "search.php?i=" + ingredient
         return self.get(route)
 
-    def lookup_ingredient_by_id(self, ingredient_id):
+    def get_ingredient_by_id(self, ingredient_id):
         """
         Looks up a cocktail ingredient by its numeric ID.
         Validates that the ingredient ID is numeric before making the API call.

@@ -1,5 +1,6 @@
 import React from "react";
 import { RecipeComponentProps } from "@/app/interfaces";
+import Link from "next/link";
 
 export const RecipeComponent: React.FC<RecipeComponentProps> = ({
   id,
@@ -35,12 +36,17 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
           <h3 className="text-2xl font-semibold mb-3">Ingredients</h3>
           <ul className="list-disc list-inside text-lg">
             {ingredients.map((ingredient: any) => (
-              <li key={ingredient.id} className="text-gray-600">
-                {ingredient.measurement} {ingredient.name}
+              <li key={ingredient.id}>
+                <Link
+                  href={`/ingredients/${ingredient.id}`}
+                  className="text-gray-600 hover:text-blue-500 cursor-pointer">
+                  {ingredient.measurement} {ingredient.name}
+                </Link>
               </li>
             ))}
           </ul>
-        </div>
+      </div>
+
 
         <div>
           <h3 className="text-2xl font-semibold mb-3">Instructions</h3>
