@@ -10,12 +10,18 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
     fetchOptions.next = { revalidate: revalidateSeconds };
   }
 
-  const response = await fetch(url, fetchOptions);
-  if (!response.ok) {
-    console.error(`Fetch error: ${response.status} ${response.statusText}`);
-    throw new Error(response.statusText);
+  try {
+    const response = await fetch(url, fetchOptions);
+    if (!response.ok) {
+      console.error(`Fetch error: ${response.status} ${response.statusText}`);
+      throw new Error(response.statusText);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching ${url}:`, error);
+    // Return a fallback or empty data structure
+    return { error: true, message: "Failed to fetch data" };
   }
-  return await response.json();
 }
 
 /**
@@ -26,17 +32,19 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
  * @return {Promise<any>} A promise that resolves with the data retrieved from the API call.
  */
 export async function callRecipeApiWithID(api: string, id: string): Promise<any> {
-  const url = "http://127.0.0.1:5328/api/food/recipes/"
-  return callWithID(url, api, id)
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5328";
+  const url = `${baseUrl}/api/food/recipes/`;
+  return callWithID(url, api, id);
 }
 
 export async function callIngredientApiWithID(api: string, id: string): Promise<any> {
-  const url = "http://127.0.0.1:5328/api/ingredients/"
-  return callWithID(url, api, id)
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5328";
+  const url = `${baseUrl}/api/ingredients/`;
+  return callWithID(url, api, id);
 }
 
-async function callWithID(url: string, api: string, id: string ): Promise<any> {
-  const revalidate = 86400
-  let call = url + api + "+" + id
-  return getApi(call, revalidate)
+async function callWithID(url: string, api: string, id: string): Promise<any> {
+  const revalidate = 86400;
+  let call = url + api + "+" + id;
+  return getApi(call, revalidate);
 }
