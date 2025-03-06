@@ -139,7 +139,31 @@ class TheMealDB(BaseTheDB):
             return self._ingredients_dict_by_id.get(i_id)
         else:
             return self._get_ingredient_by_name(i_id)
+    
+    def search_by_ingredients(self, *args):
+        """
+        Get meals id by multiple ingredients
+        """
+        all_suggestions = []
+        ids = []
 
+        for ingredient in args:
+            all_suggestions += self.search_by_ingredient(ingredient)
+
+        for id in all_suggestions:
+            if all_suggestions.count(id) > 1 and id not in meals:
+                ids.append(id)
+        
+        index = 0
+        while len(ids) < 6:
+            ids.append(all_suggestions[index * len(args)])
+            index += 1
+        
+        meals = []
+        for id in ids:
+            meals.append(self.search_by_id(id))
+        
+        return meals
 
 class TheCocktailDB(BaseTheDB):
     """Client for TheCocktailDB API."""
