@@ -19,7 +19,6 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
     return await response.json();
   } catch (error) {
     console.error(`Error fetching ${url}:`, error);
-    // Return a fallback or empty data structure
     return { error: true, message: "Failed to fetch data" };
   }
 }
