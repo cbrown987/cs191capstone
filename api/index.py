@@ -1,12 +1,14 @@
 import logging
 
 from flask import Flask
+from flask_cors import CORS
 
 from api.endpoints.base import standardize_api
 from api.endpoints.thedb import TheMealDB, TheCocktailDB
 from api.util.handlers import handle_id_calls, handle_ingredient_calls
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/api/food/recipes', methods=['GET', 'POST'])
 @standardize_api(schema_type='RECIPE')
