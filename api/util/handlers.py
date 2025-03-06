@@ -1,20 +1,31 @@
 from api.endpoints import TheMealDB, TheCocktailDB, NinjasCocktailAPI, NinjasRecipeAPI
 
-
-def handle_id_calls(call_id: str):
-    """
-    Handles API calls based on the provided string identifier and retrieves information
-    from the appropriate database by invoking the respective class' method.
-
-    IDs are delivered to the API in the form <DB>+<ID>
-    """
-    api_ids = {
+_API_IDS = {
         "M": TheMealDB,
         "C": TheCocktailDB,
         "N": NinjasCocktailAPI,
         "R": NinjasRecipeAPI
     }
-    id_lst = call_id.split('+')
-    db_class = api_ids[id_lst[0]]
-    return db_class().search_by_id(id_lst[1])
 
+def handle_api_call(call_id: str, search_method: str = 'search_by_id'):
+    """
+    Generic handler for API calls based on database identifier.
+
+    Args:
+        call_id (str): API identifier in format '<DB>+<ID>'
+        search_method (str, optional): Method to call on database class. Defaults to 'search_by_id'.
+    """
+    try:
+        db_type, item_id = call_id.split('+')
+        db_class = _API_IDS[db_type]
+        return getattr(db_class(), search_method)(item_id)
+    except (ValueError, KeyError) as e:
+        raise ValueError(f"Invalid API call format: {call_id}") from e
+
+
+def handle_id_calls(call_id: str):
+    return handle_api_call(call_id)
+
+
+def handle_ingredient_calls(call_id: str):
+    return handle_api_call(call_id, search_method='get_ingredient_by_id')

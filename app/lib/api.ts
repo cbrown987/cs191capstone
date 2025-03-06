@@ -25,8 +25,17 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
  * @param {string} id - The unique identifier to append to the API endpoint.
  * @return {Promise<any>} A promise that resolves with the data retrieved from the API call.
  */
-export async function callApiWithID(api: string, id: string): Promise<any>{
+export async function callRecipeApiWithID(api: string, id: string): Promise<any> {
   const url = "http://127.0.0.1:5328/api/food/recipes/"
+  return callWithID(url, api, id)
+}
+
+export async function callIngredientApiWithID(api: string, id: string): Promise<any> {
+  const url = "http://127.0.0.1:5328/api/ingredients/"
+  return callWithID(url, api, id)
+}
+
+async function callWithID(url: string, api: string, id: string ): Promise<any> {
   const revalidate = 86400
   let call = url + api + "+" + id
   return getApi(call, revalidate)

@@ -16,7 +16,7 @@ const TopNav: React.FC = () => {
                     <img src="/images/rubarb_logo.svg" alt="Rubarb Logo" className="max-h-16 max-w-16"/>
 
                     <span className="text-xl font-bold uppercase font-playfair">
-                         Rubarb
+                         Rhubarb
                      </span>
                 </div>
                 <ul style={{listStyle: 'none', display: 'flex', gap: '1rem', margin: 0, padding: 0}}>
