@@ -6,9 +6,10 @@
     "flask-dev": "source .venv/bin/activate && FLASK_DEBUG=1 pip3 install -r requirements.txt && python3 -m flask --app api/index run -p 5328",
     "next-dev": "next dev",
     "dev": "concurrently \"pnpm run next-dev\" \"pnpm run flask-dev\"",
-    "flask-build": "pip3 install -r requirements.txt && python3 -m flask --app api/index run -p 5328",
-    "build": "pnpm run flask-build && next build",
-    "start": "next start",
+    "flask-build": "pip3 install -r requirements.txt --no-cache-dir",
+    "flask-start": "gunicorn --config gunicorn_config.py api.index:app",
+    "build": "pnpm run flask-build && flask-start && next build",
+    "start": "concurrently \"pnpm run flask-start\" \"next start\"",
     "lint": "next lint"
   },
   "dependencies": {

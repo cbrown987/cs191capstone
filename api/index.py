@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask
 
 from api.endpoints.base import standardize_api
@@ -37,6 +39,11 @@ def drink_recipes():
 @standardize_api(schema_type='INGREDIENT')
 def ingredients_by_id(call_id):
     return handle_ingredient_calls(call_id)
+
+if not app.debug:
+    file_handler = logging.FileHandler('flask-app.log')
+    file_handler.setLevel(logging.WARNING)
+    app.logger.addHandler(file_handler)
 
 
 if __name__ == '__main__':
