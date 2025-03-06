@@ -5,8 +5,8 @@ import { use } from "react";
 
 export const Menu = () => {
     const cacheTime = 86400 // Cache for 24 hours
-    let food_items: any[] = use(getApi("http://127.0.0.1:5328/api/food/recipes", cacheTime));
-    let drink_items: any[] = use(getApi("http://127.0.0.1:5328/api/drink/recipes", cacheTime));
+    let food_items: any[] = use(getApi("/api/food/recipes", cacheTime));
+    let drink_items: any[] = use(getApi("/api/drink/recipes", cacheTime));
     return (
         <>
         <div className="max-w-4xl mx-auto border-deco">

@@ -1,9 +1,13 @@
 /**
  * Helper function to get an api from the client
- * @param url
+ * @param route
  * @param revalidateSeconds The number of seconds to cache calls. (optional)
  */
-export async function getApi(url: string, revalidateSeconds?: number): Promise<any> {
+export async function getApi(route: string, revalidateSeconds?: number): Promise<any> {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5328";
+
+    let url = baseUrl + route;
+
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
 
   if (revalidateSeconds !== undefined) {
