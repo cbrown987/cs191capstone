@@ -97,7 +97,7 @@ class StandardizeAPI:
         }
         self.json_input = json_input
 
-        self.converted_json = _conversion_strategy[schema_type](json_input)
+        self.converted_json = _conversion_strategy.get(schema_type)(json_input)
         self._verify()
 
 
