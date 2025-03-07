@@ -42,12 +42,12 @@ def drink_recipes():
 def ingredients_by_id(call_id):
     return handle_ingredient_calls(call_id)
 
-if not app.debug:
+if app.debug:
     file_handler = logging.FileHandler('flask-app.log')
     file_handler.setLevel(logging.WARNING)
     app.logger.addHandler(file_handler)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
 
