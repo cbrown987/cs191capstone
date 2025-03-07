@@ -1,7 +1,6 @@
 import {MenuLink} from "@/app/components/menu/menuLink";
 import {getApi} from "@/app/lib/api";
 
-// Use React's suspense feature correctly by moving the data fetching outside the component
 const getFoodItems = getApi("/api/food/recipes", 86400); // Cache for 24 hours
 const getDrinkItems = getApi("/api/drink/recipes", 86400); // Cache for 24 hours
 

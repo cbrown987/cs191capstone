@@ -143,7 +143,7 @@ class StandardizeAPI:
         else:
             logging.error(f"Cannot determine API response from JSON {recipe_json_input}")
             raise ValueError("Cannot determine API response from JSON")
-
+        logging.error(json_value)
         output = {
             "id": int(json_value[id_key]),
             "title": json_value[title_key],
