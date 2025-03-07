@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 from flask import jsonify
 from jsonschema import validate
@@ -140,6 +141,7 @@ class StandardizeAPI:
             thumb_key = "strDrinkThumb"
             max_ingredients = 15
         else:
+            logging.ERROR(f"Cannot determine API response from JSON {recipe_json_input}")
             raise ValueError("Cannot determine API response from JSON")
 
         output = {
