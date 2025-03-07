@@ -23,7 +23,10 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
       console.error(`Fetch error: ${response.status} ${response.statusText}`);
       throw new Error(response.statusText);
     }
-    return await response.json();
+    console.log(`Fetched ${fullUrl}}`);
+    let a = await response.json();
+    console.log(a);
+    return await a;
   } catch (error) {
     console.error(`Error fetching ${fullUrl}:`, error);
     return { error: true, message: "Failed to fetch data" };
