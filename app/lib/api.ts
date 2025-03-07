@@ -13,9 +13,9 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5328";
   const fullUrl = isCompleteUrl ? url : `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
 
-  if (revalidateSeconds !== undefined) {
-    fetchOptions.next = { revalidate: revalidateSeconds };
-  }
+  // if (revalidateSeconds !== undefined) {
+  //   fetchOptions.next = { revalidate: revalidateSeconds };
+  // }
 
   try {
     const response = await fetch(fullUrl, fetchOptions);
