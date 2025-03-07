@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app)
 
 @app.route('/api/food/recipes', methods=['GET', 'POST'])
-@standardize_api(schema_type='RECIPE')
+@standardize_api(schema_type='RECIPE_ARRAY')
 def food_recipes():
     """
     Get 10 random food recipes
@@ -29,7 +29,7 @@ def recipe_from_id(call_id):
     return handle_id_calls(call_id)
 
 @app.route('/api/drink/recipes', methods=['GET', 'POST'])
-@standardize_api(schema_type='RECIPE')
+@standardize_api(schema_type='RECIPE_ARRAY')
 def drink_recipes():
     """
     Get 10 random drink recipes
@@ -49,5 +49,5 @@ if app.debug:
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
 

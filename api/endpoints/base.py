@@ -167,16 +167,19 @@ class StandardizeAPI:
 
     def _convert_recipe_array(self, *args):
         recipe_array = []
+        if isinstance(self.json_input, tuple):
+            self.json_input = self.json_input[0]
         _db_api = None
-        if "meals" in self.json_input:
-            _db_api = "meals"
-        elif "drinks" in self.json_input:
-            _db_api = "drinks"
-        for value in self.json_input[_db_api]:
+        for value in self.json_input:
+            if "meals" in self.json_input:
+                _db_api = "meals"
+            elif "drinks" in self.json_input:
+                _db_api = "drinks"
             recipe_array.append(self._convert_recipe(
                 _db_api=_db_api,
                 json_input_override=value
             ))
+        return recipe_array
 
 
 
