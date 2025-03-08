@@ -35,7 +35,7 @@ export default async ({ params }: { params: Promise<{ id: string }> }) => {
       <RecipeComponent
         id={recipe['id'] || id}
         title={recipe['title'] || 'Unnamed Recipe'}
-        description={recipe['description'] || 'No description available'}
+        description={recipe['description'] || null}
         instructions={recipe['instructions'] || []}
         imageURL={recipe['imageURL'] || '/images/placeholder-drink.png'}
         ingredients={recipe['ingredients'] || []}

@@ -18,18 +18,17 @@ export default async ({ params }: { params: Promise<{ id: string }> }) => {
     notFound();
   }
 
-  // Provide default values for all required props
-  return(
-    <>
-      <RecipeComponent
-        id={recipe['id'] || id}
-        title={recipe['title'] || 'Unnamed Recipe'}
-        description={recipe['description'] || 'No description available'}
-        instructions={recipe['instructions'] || []}
-        imageURL={recipe['imageURL'] || '/images/placeholder-food.png'}
-        ingredients={recipe['ingredients'] || []}
-        type={"food"}
-      />
-    </>
-  );
+return(
+  <>
+    <RecipeComponent
+      id={recipe['id'] || id}
+      title={recipe['title'] || 'Unnamed Recipe'}
+      description={recipe['description'] || null} // Changed from 'No description available' to null
+      instructions={recipe['instructions'] || []}
+      imageURL={recipe['imageURL'] || '/images/placeholder-food.png'}
+      ingredients={recipe['ingredients'] || []}
+      type={"food"}
+    />
+  </>
+);
 }
