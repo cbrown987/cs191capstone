@@ -58,3 +58,11 @@ async function callWithID(url: string, api: string, id: string): Promise<any> {
 export async function getImage(query: string) {
     return await getApi(`/api/image/${query}`)
 }
+
+export async function getAIDescription(query: string) {
+  return await getApi(`/api/ai/description/${query}`)
+}
+
+export async function getAISubstitutions(query: string) {
+  return await getApi(`/api/ai/substitutions/${query}`)
+}

@@ -12,6 +12,8 @@ class Config:
     """
     API_NINJAS_KEY = os.getenv('API_NINJAS_KEY', '')
     API_PIXABAY_KEY = os.getenv('API_PIXABAY_KEY', '')
+    API_HYPERBOLIC_KEY = os.getenv('API_HYPERBOLIC_KEY', '')
+    ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '').split(',')
 
     @classmethod
     def get_secret(cls, key_name):

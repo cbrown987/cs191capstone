@@ -1,4 +1,4 @@
-import {callIngredientApiWithID, getImage} from "@/app/lib/api";
+import {callIngredientApiWithID, getAIDescription, getAISubstitutions, getImage} from "@/app/lib/api";
 import {IngredientComponent} from "@/app/components/IngredentComponent/IngredientComponent";
 
 export default async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -14,14 +14,18 @@ export default async ({ params }: { params: Promise<{ id: string }> }) => {
   const recipie = await callIngredientApiWithID(type, cleanId)
   let query = `${recipie['name']} Ingredient`
   let image_url = await getImage(query)
+  let recipe_description = recipie['description']
 
+  if(recipe_description === null) {
+      recipe_description = await getAIDescription(recipie['name'])
+  }
 
   return(
     <>
       <IngredientComponent
           id={recipie['id']}
           name={recipie['name']}
-          description={recipie['description']}
+          description={recipe_description}
           imageURL={image_url}
       />
     </>

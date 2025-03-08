@@ -4,3 +4,4 @@ jsonschema~=4.23.0
 dotenv~=0.9.9
 gunicorn~=22.0.0
 flask-cors~=5.0.1
+openai~=1.65.4

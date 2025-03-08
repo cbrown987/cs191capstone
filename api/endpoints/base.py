@@ -1,9 +1,10 @@
 import logging
 from functools import wraps
-from flask import jsonify
+from flask import jsonify, request, abort
 from jsonschema import validate
 import requests
 
+from api.config import Config
 from api.util.exceptions import APINotImplementedException
 
 class BaseEndpoint:
@@ -87,14 +88,19 @@ class StandardizeAPI:
 
     IMAGE_URL = {
         "type": "string",
-        "pattern": "^https?:\/\/.*\.(?:png|jpg|jpeg)$"
+        "pattern": r"^https?:\/\/.*\.(?:png|jpg|jpeg)$"
+    }
+
+    AI_RESPONSE_TEXT = {
+        "type": "string"
     }
 
     SCHEMAS = {
         "INGREDIENT": INGREDIENT,
         "RECIPE": RECIPE,
         "RECIPE_ARRAY": RECIPE_ARRAY,
-        "IMAGE_URL": IMAGE_URL
+        "IMAGE_URL": IMAGE_URL,
+        "AI_RESPONSE_TEXT": AI_RESPONSE_TEXT
     }
 
     def __init__(self, json_input, schema_type=None):
@@ -103,7 +109,8 @@ class StandardizeAPI:
             "INGREDIENT": self._convert_ingredient,
             "RECIPE": self._convert_recipe,
             "RECIPE_ARRAY": self._convert_recipe_array,
-            "IMAGE_URL": self._convert_image_url
+            "IMAGE_URL": self._convert_image_url,
+            "AI_RESPONSE_TEXT": self._convert_ai_response,
         }
         self.json_input = json_input
 
@@ -200,6 +207,9 @@ class StandardizeAPI:
     def _convert_image_url(self, *args):
         return self.json_input
 
+    def _convert_ai_response(self, *args):
+        return self.json_input
+
 
 
 def standardize_api(schema_type=None):
@@ -210,6 +220,18 @@ def standardize_api(schema_type=None):
             return jsonify(StandardizeAPI(result, schema_type=schema_type).converted_json)
         return wrapper
     return decorator
+
+
+def verify_next_client(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        origin = request.headers.get('Origin')
+        if not origin:
+            origin = request.headers.get('Host')
+        if not origin or origin not in Config.ALLOWED_ORIGINS:
+            abort(403)
+        return func(*args, **kwargs)
+    return decorated_function
 
 
 
