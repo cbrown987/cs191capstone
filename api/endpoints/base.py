@@ -6,10 +6,8 @@ import requests
 
 from api.util.exceptions import APINotImplementedException
 
-
-class BaseDB:
+class BaseEndpoint:
     """Abstract class for API calls"""
-
     def __init__(self, endpoint, headers = None):
         self.endpoint = endpoint
         self.headers = headers
@@ -31,6 +29,10 @@ class BaseDB:
         :param response: The response from an API call.
         """
         raise NotImplementedError()
+
+
+class BaseDB(BaseEndpoint):
+    """Abstract class for APIDB calls"""
 
     def get_image(self, query):
         """An abstract get image function. Must be defined in subclasses."""
@@ -83,10 +85,16 @@ class StandardizeAPI:
         "items": RECIPE,
     }
 
+    IMAGE_URL = {
+        "type": "string",
+        "pattern": "^https?:\/\/.*\.(?:png|jpg|jpeg)$"
+    }
+
     SCHEMAS = {
         "INGREDIENT": INGREDIENT,
         "RECIPE": RECIPE,
-        "RECIPE_ARRAY": RECIPE_ARRAY
+        "RECIPE_ARRAY": RECIPE_ARRAY,
+        "IMAGE_URL": IMAGE_URL
     }
 
     def __init__(self, json_input, schema_type=None):
@@ -94,7 +102,8 @@ class StandardizeAPI:
         _conversion_strategy = {
             "INGREDIENT": self._convert_ingredient,
             "RECIPE": self._convert_recipe,
-            "RECIPE_ARRAY": self._convert_recipe_array
+            "RECIPE_ARRAY": self._convert_recipe_array,
+            "IMAGE_URL": self._convert_image_url
         }
         self.json_input = json_input
 
@@ -108,7 +117,10 @@ class StandardizeAPI:
 
     def _convert_ingredient(self, *args):
         if isinstance(self.json_input, dict):
-            self.json_input = self.json_input["ingredients"][0]
+            try:
+                self.json_input = self.json_input["ingredients"][0]
+            except KeyError:
+                pass
 
         id_key = "idIngredient"
         name_key = "strIngredient"
@@ -184,6 +196,9 @@ class StandardizeAPI:
                 json_input_override=value
             ))
         return recipe_array
+
+    def _convert_image_url(self, *args):
+        return self.json_input
 
 
 

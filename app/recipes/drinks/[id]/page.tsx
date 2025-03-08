@@ -1,4 +1,4 @@
-import {callRecipeApiWithID} from "@/app/lib/api";
+import {callRecipeApiWithID, getImage} from "@/app/lib/api";
 import {RecipeComponent} from "@/app/components/RecipeComponent/RecipeComponent";
 
 /**
@@ -16,7 +16,6 @@ export default async ({ params }: { params: Promise<{ id: string }> }) => {
     console.error(`Failed to fetch drink recipe with ID ${id}:`, err);
     error = "Failed to load recipe data";
   }
-
   if (!recipe) {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4 text-center">

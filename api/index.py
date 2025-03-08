@@ -4,6 +4,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from api.endpoints.base import standardize_api
+from api.endpoints.photos.pixabay import Pixabay
 from api.endpoints.thedb import TheMealDB, TheCocktailDB
 from api.util.handlers import handle_id_calls, handle_ingredient_calls
 
@@ -41,6 +42,13 @@ def drink_recipes():
 @standardize_api(schema_type='INGREDIENT')
 def ingredients_by_id(call_id):
     return handle_ingredient_calls(call_id)
+
+
+@app.route('/api/image/<string:query>', methods=['GET', 'POST'])
+@standardize_api(schema_type='IMAGE_URL')
+def get_image(query):
+    return Pixabay().get_image_by_query(query)
+
 
 if app.debug:
     file_handler = logging.FileHandler('flask-app.log')
