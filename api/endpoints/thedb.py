@@ -192,14 +192,8 @@ class TheCocktailDB(BaseTheDB):
         return self.get(route)
 
     def get_ingredient_by_id(self, ingredient_id):
-        """
-        Looks up a cocktail ingredient by its numeric ID.
-        Validates that the ingredient ID is numeric before making the API call.
-        :param ingredient_id: The numeric ID of the ingredient.
-        :raises ValueError: If the ingredient ID is not numeric.
-        """
         if not ingredient_id.isdigit():
-            raise ValueError("Ingredient ID must be numeric.")
+            return self.search_ingredient_by_name(ingredient_id)
         route = "lookup.php?iid=" + ingredient_id
         return self.get(route)
 

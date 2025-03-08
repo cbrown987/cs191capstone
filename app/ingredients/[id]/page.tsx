@@ -1,10 +1,17 @@
 import {callIngredientApiWithID} from "@/app/lib/api";
 import {IngredientComponent} from "@/app/components/IngredentComponent/IngredientComponent";
 
-
 export default async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id
-  const recipie =  await callIngredientApiWithID("M", id)
+
+  let type = "M"
+  let cleanId = id
+
+  if (id.startsWith("C-")) {
+    type = "C"
+    cleanId = id.substring(2)
+  }
+  const recipie = await callIngredientApiWithID(type, cleanId)
 
   return(
     <>

@@ -107,13 +107,17 @@ class StandardizeAPI:
 
 
     def _convert_ingredient(self, *args):
+        if isinstance(self.json_input, dict):
+            self.json_input = self.json_input["ingredients"][0]
+
         id_key = "idIngredient"
         name_key = "strIngredient"
         measurement_key = "strIngredient"
         description_key = "strDescription"
 
+        ing_id = self.json_input.get(id_key)
         ingredient = {
-            "id": int(self.json_input.get(id_key)),
+            "id": int(ing_id) if ing_id else None,
             "name": self.json_input.get(name_key),
             "measurement": self.json_input.get(measurement_key),
             "description": self.json_input.get(description_key)
