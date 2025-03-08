@@ -54,3 +54,7 @@ async function callWithID(url: string, api: string, id: string): Promise<any> {
   let call = url + api + "+" + id;
   return getApi(call, revalidate);
 }
+
+export async function getImage(query: string) {
+    return await getApi(`/api/image/${query}`)
+}

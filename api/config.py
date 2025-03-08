@@ -11,6 +11,7 @@ class Config:
     for the application, such as API keys.
     """
     API_NINJAS_KEY = os.getenv('API_NINJAS_KEY', '')
+    API_PIXABAY_KEY = os.getenv('API_PIXABAY_KEY', '')
 
     @classmethod
     def get_secret(cls, key_name):
