@@ -16,6 +16,11 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
       ingredients[ingredientsKey].id = ingredients[ingredientsKey].name
     }
   }
+  else{
+    for (const ingredientsKey in ingredients) {
+      ingredients[ingredientsKey].id = 'C-' + ingredients[ingredientsKey].name
+    }
+  }
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)] bg-gray-50">
       {/* Left Side: Full-Height Image */}
