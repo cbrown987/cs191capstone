@@ -150,8 +150,8 @@ class TheMealDB(BaseTheDB):
         for ingredient in args:
             all_suggestions += self.search_by_ingredient(ingredient)
 
-        for id in all_suggestions:
-            if all_suggestions.count(id) > 1 and id not in meals:
+        for id in all_suggestions: # Id is shadowing a builtin variable. Maybe s_id or suggestion?
+            if all_suggestions.count(id) > 1 and id not in meals: # undefined?
                 ids.append(id)
         
         index = 0
@@ -160,7 +160,7 @@ class TheMealDB(BaseTheDB):
             index += 1
         
         meals = []
-        for id in ids:
+        for id in ids: # same with this id
             meals.append(self.search_by_id(id))
         
         return meals
