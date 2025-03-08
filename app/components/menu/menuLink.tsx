@@ -1,17 +1,23 @@
 import {MenuLinkProps} from "@/app/interfaces";
-import React from "react";
 import Link from "next/link";
 
 export const MenuLink: React.FC<MenuLinkProps> = ({linkText, link, description}) => {
-    let n_link = "/recipes/" + description+ "/" + link
+    let n_link = "/recipes/" + description + "/" + link;
     return (
-            <>
-                <li className="flex justify-between border-b border-gray-300 pb-1">
-                  <span>
-                    <Link href={n_link}>{linkText}</Link>
-                  </span>
-                  {/*<span className="text-sm text-gray-500 italic"> with thyme, black truffle, and lemon zest</span>*/}
-                </li>
-            </>
-        );
-    };
+        <li className="border-b border-gray-200 last:border-b-0 pb-2">
+            <Link
+                href={n_link}
+                className="group flex justify-between items-center py-3"
+            >
+                <div>
+                    <span className="font-serif tracking-wide text-lg group-hover:text-gray-600 transition-colors duration-300">
+                        {linkText}
+                    </span>
+                </div>
+                <span className="text-sm font-light opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    view →
+                </span>
+            </Link>
+        </li>
+    );
+};

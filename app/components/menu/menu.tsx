@@ -11,7 +11,6 @@ export const Menu = async () => {
         getDrinkItems
     ]);
 
-    // Extract data or use empty arrays as fallbacks
     const food_items = foodItemsResult.status === 'fulfilled' ? (foodItemsResult.value || []) : [];
     const drink_items = drinkItemsResult.status === 'fulfilled' ? (drinkItemsResult.value || []) : [];
 
@@ -29,76 +28,68 @@ export const Menu = async () => {
     const hasDrinkItems = Array.isArray(drink_items) && drink_items.length > 0;
 
     return (
-        <>
-        <div className="max-w-4xl mx-auto border-deco">
+        <div className="max-w-4xl mx-auto px-6 py-8 bg-white min-h-screen flex flex-col">
             {/* Header / Title */}
-            <header className="text-center mb-8">
-                <h1 className="text-4xl md:text-5xl font-bold uppercase tracking-wide">
-                    Your Menu
+            <header className="text-center mb-6">
+                <h1 className="text-3xl font-serif tracking-wide text-[#902425]">
+                    MENU
                 </h1>
+                <div className="mt-3 mb-5 flex items-center justify-center">
+                </div>
             </header>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Bites Section */}
-                <div>
-                    <div className="flex justify-center mb-4">
-                        {/* TODO: Replace this with an image once one is available */}
-                        <img
-                            src="/images/fork_bites_image.png"
-                            alt="Decorative Fork"
-                            className="decor-img"
-                        />
-                    </div>
-                    <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-widest mb-4">
-                        Bites
-                    </h2>
-                    <ul className="space-y-2">
-                        {hasFoodItems ? (
-                            food_items.map((item, index) => (
-                                <MenuLink
-                                    key={item['id'] || index}
-                                    linkText={item['title'] || 'Unnamed Item'}
-                                    link={item['id'] || '#'}
-                                    description={"food"}
-                                />
-                            ))
-                        ) : (
-                            <li className="text-gray-500 italic">No food items available at the moment</li>
-                        )}
-                    </ul>
-                </div>
 
-                {/* Right Column */}
-                <div>
-                    {/* TODO: Replace this with an image once one is available */}
-                    <div className="flex justify-center mb-4">
-                        <img
-                            src="https://via.placeholder.com/60x100?text=Glass"
-                            alt="Decorative Wine Glass"
-                            className="decor-img"
-                        />
-                    </div>
-
-                    {/* Drinks Section */}
-                    <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-widest mb-4">
-                        Drinks
+            <div className="grid grid-cols-2 gap-8 flex-grow">
+                {/* Drinks Section */}
+                <section>
+                    <h2 className="text-center text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
+                        Cocktails
                     </h2>
-                    <ul className="space-y-2">
-                        {hasDrinkItems ? (
-                            drink_items.map((item, index) => (
-                                <MenuLink
-                                    key={item['id'] || index}
-                                    linkText={item['title'] || 'Unnamed Item'}
-                                    link={item['id'] || '#'}
-                                    description={"drinks"}
-                                />
-                            ))
-                        ) : (
-                            <li className="text-gray-500 italic">No drink items available at the moment</li>
-                        )}
-                    </ul>
-                </div>
+
+                    <div className="mb-4">
+                        <ul className="space-y-0">
+                            {hasDrinkItems ? (
+                                drink_items.slice(0, 8).map((item, index) => (
+                                    <MenuLink
+                                        key={item['id'] || index}
+                                        linkText={item['title'] || 'Unnamed Item'}
+                                        link={item['id'] || '#'}
+                                        description={"drinks"}
+                                    />
+                                ))
+                            ) : (
+                                <li className="text-gray-500 italic text-center py-2">No cocktails available</li>
+                            )}
+                        </ul>
+                    </div>
+                </section>
+
+                {/* Food Section */}
+                <section>
+                    <h2 className="text-center text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
+                        Provisions
+                    </h2>
+
+                    <div className="mb-4">
+                        <ul className="space-y-0">
+                            {hasFoodItems ? (
+                                food_items.slice(0, 8).map((item, index) => (
+                                    <MenuLink
+                                        key={item['id'] || index}
+                                        linkText={item['title'] || 'Unnamed Item'}
+                                        link={item['id'] || '#'}
+                                        description={"food"}
+                                    />
+                                ))
+                            ) : (<li className="text-gray-500 italic text-center py-2">No food available</li>)}
+                        </ul>
+                    </div>
+                </section>
             </div>
+
+            <footer className="mt-6 text-center">
+                <div className="w-12 h-px bg-black mx-auto mb-2"></div>
+                <p className="text-xs tracking-widest uppercase font-light">Thank You For Your Patronage</p>
+            </footer>
         </div>
-        </>
     );
-}
+};

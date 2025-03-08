@@ -13,34 +13,18 @@ const SearchBar: React.FC = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
+        <form onSubmit={handleSubmit} className="flex items-center">
             <input
                 type="text"
                 placeholder="Search recipes..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                style={{
-                    padding: '0.5rem',
-                    fontSize: '1rem',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px 0 0 4px',
-                    color: 'black',          // Explicit text color
-                    backgroundColor: 'white' // Explicit background
-                }}
+                className="py-1 px-3 text-base text-gray-800 bg-transparent border-b-2 border-gray-300 focus:border-[#902425] focus:outline-none transition duration-200"
             />
 
             <button
                 type="submit"
-                style={{
-                    padding: '0.5rem 1rem',
-                    fontSize: '1rem',
-                    border: '1px solid #ccc',
-                    borderLeft: 'none',
-                    borderRadius: '0 4px 4px 0',
-                    background: '#0070f3',
-                    color: '#fff',
-                    cursor: 'pointer',
-                }}
+                className="ml-2 py-1 px-3 text-gray-800 border-b-2 border-[#902425] font-cinzel hover:text-[#902425] transition duration-200 cursor-pointer"
             >
                 Search
             </button>
