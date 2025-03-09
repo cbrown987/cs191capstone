@@ -57,6 +57,12 @@ class StandardizeAPI:
     """
     Standardize the output of an API call.
     """
+    # database identifiers
+    DB_MEALS = "meals"
+    DB_DRINKS = "drinks"
+    DB_INGREDIENTS = "ingredients"
+
+
     INGREDIENT = {
         "type": ["object"],
         "properties": {
@@ -95,121 +101,253 @@ class StandardizeAPI:
         "type": "string"
     }
 
+    _SEARCH_RESULTS_OBJECT = {
+        "type": "object",
+        "properties": {
+            "database": {"type": "string"},
+            "recipe": {"oneOf": [{"type": "null"}, RECIPE]},
+            "ingredient": {"oneOf": [{"type": "null"}, INGREDIENT]},
+        }
+    }
+
+    SEARCH_RESULTS = {
+        "type": "array",
+        "items": _SEARCH_RESULTS_OBJECT
+    }
+
+
     SCHEMAS = {
         "INGREDIENT": INGREDIENT,
         "RECIPE": RECIPE,
         "RECIPE_ARRAY": RECIPE_ARRAY,
         "IMAGE_URL": IMAGE_URL,
-        "AI_RESPONSE_TEXT": AI_RESPONSE_TEXT
+        "AI_RESPONSE_TEXT": AI_RESPONSE_TEXT,
+        "SEARCH_RESULTS": SEARCH_RESULTS,
     }
 
     def __init__(self, json_input, schema_type=None):
+        """
+        Initialize StandardizeAPI with input JSON and a schema type.
+
+        Args:
+            json_input: The JSON input to be standardized
+            schema_type: The schema type to use for standardization
+        """
+        if schema_type not in self.SCHEMAS:
+            raise ValueError(f"Invalid schema type: {schema_type}")
+
         self.schema = self.SCHEMAS[schema_type]
-        _conversion_strategy = {
+        self.json_input = json_input
+
+        conversion_map = {
             "INGREDIENT": self._convert_ingredient,
             "RECIPE": self._convert_recipe,
             "RECIPE_ARRAY": self._convert_recipe_array,
             "IMAGE_URL": self._convert_image_url,
             "AI_RESPONSE_TEXT": self._convert_ai_response,
+            "SEARCH_RESULTS": self._convert_search_results,
         }
-        self.json_input = json_input
 
-        self.converted_json = _conversion_strategy.get(schema_type)(json_input)
+        converter = conversion_map.get(schema_type)
+        if not converter:
+            raise ValueError(f"No converter for schema type: {schema_type}")
+
+        self.converted_json = converter()
         self._verify()
-
 
     def _verify(self):
         return validate(instance=self.converted_json, schema=self.schema)
 
+    def _convert_ingredient(self, json_input=None):
+        """
+        Convert ingredient JSON to standardized format.
 
-    def _convert_ingredient(self, *args):
-        if isinstance(self.json_input, dict):
+        Args:
+            json_input: Optional JSON input to override self.json_input
+
+        Returns:
+            Standardized ingredient object
+        """
+        json_value = json_input or self.json_input
+
+        if isinstance(json_value, dict) and "ingredients" in json_value:
             try:
-                self.json_input = self.json_input["ingredients"][0]
-            except KeyError:
+                json_value = json_value["ingredients"][0]
+            except (KeyError, IndexError):
                 pass
 
         id_key = "idIngredient"
         name_key = "strIngredient"
-        measurement_key = "strIngredient"
+        measurement_key = "strMeasure"  # Fixed key name
         description_key = "strDescription"
 
-        ing_id = self.json_input.get(id_key)
-        ingredient = {
-            "id": int(ing_id) if ing_id else None,
-            "name": self.json_input.get(name_key),
-            "measurement": self.json_input.get(measurement_key),
-            "description": self.json_input.get(description_key)
-        }
-        return ingredient
+        ing_id = json_value.get(id_key)
 
-    def _convert_recipe(self, _db_api=None, json_input_override=None):
-        recipe_json_input = self.json_input
-        if json_input_override:
-            recipe_json_input = json_input_override
-        if "meals" in recipe_json_input or (_db_api == "meal") :
-            json_value = recipe_json_input["meals"]
-            if isinstance(json_value, list):
+        return {
+            "id": int(ing_id) if ing_id and ing_id.isdigit() else None,
+            "name": json_value[name_key],
+            "measurement": json_value.get(measurement_key),
+            "description": json_value.get(description_key)
+        }
+
+    @staticmethod
+    def _extract_ingredients(json_value, max_ingredients):
+        """
+        Extract ingredients from a recipe JSON.
+
+        Args:
+            json_value: JSON object containing ingredient data
+            max_ingredients: Maximum number of ingredients to extract
+
+        Returns:
+            List of standardized ingredients
+        """
+        ingredients = []
+
+        for i in range(1, max_ingredients + 1):
+            ingredient_name = json_value.get(f"strIngredient{i}")
+            measure = json_value.get(f"strMeasure{i}")
+
+            if ingredient_name and ingredient_name.strip():
+                ingredients.append({
+                    "id": None,
+                    "name": ingredient_name.strip(),
+                    "measurement": measure.strip() if measure and measure.strip() else None,
+                    "description": None
+                })
+
+        return ingredients
+
+    def _convert_recipe(self, db_type=None, json_input=None):
+        """
+        Convert recipe JSON to standardized format.
+
+        Args:
+            db_type: Database type ('meals' or 'drinks')
+            json_input: Optional JSON input to override self.json_input
+
+        Returns:
+            Standardized recipe object
+        """
+        recipe_json_input = json_input or self.json_input
+
+        if not db_type:
+            if "meals" in recipe_json_input:
+                db_type = self.DB_MEALS
+            elif "drinks" in recipe_json_input:
+                db_type = self.DB_DRINKS
+            else:
+                logging.error(f"Cannot determine API response from JSON {recipe_json_input}")
+                raise ValueError("Cannot determine API response from JSON")
+
+        if db_type == self.DB_MEALS:
+            json_value = recipe_json_input.get("meals", [])
+            if isinstance(json_value, list) and json_value:
                 json_value = json_value[0]
             id_key = "idMeal"
             title_key = "strMeal"
             thumb_key = "strMealThumb"
             max_ingredients = 20
-        elif "drinks" in recipe_json_input or (_db_api == "drinks") :
-            json_value = recipe_json_input["drinks"]
-            if isinstance(json_value, list):
+        elif db_type == self.DB_DRINKS:
+            json_value = recipe_json_input.get("drinks", [])
+            if isinstance(json_value, list) and json_value:
                 json_value = json_value[0]
             id_key = "idDrink"
             title_key = "strDrink"
             thumb_key = "strDrinkThumb"
             max_ingredients = 15
         else:
-            logging.error(f"Cannot determine API response from JSON {recipe_json_input}")
-            raise ValueError("Cannot determine API response from JSON")
-        logging.error(json_value)
+            raise ValueError(f"Unsupported database type: {db_type}")
+
         output = {
             "id": int(json_value[id_key]),
             "title": json_value[title_key],
             "description": None,
             "instructions": json_value["strInstructions"],
             "imageURL": json_value[thumb_key],
-            "ingredients": []
+            "ingredients": self._extract_ingredients(json_value, max_ingredients)
         }
-
-        for i in range(1, max_ingredients + 1):
-            ingredient_name = json_value.get(f"strIngredient{i}")
-            measure = json_value.get(f"strMeasure{i}")
-            if ingredient_name and ingredient_name.strip():
-                output["ingredients"].append({
-                    "id": None,
-                    "name": ingredient_name.strip(),
-                    "measurement": measure.strip() if measure and measure.strip() else None
-                })
 
         return output
 
-    def _convert_recipe_array(self, *args):
+    def _convert_recipe_array(self):
+        """
+        Convert an array of recipes to standardized format.
+
+        Returns:
+            Array of standardized recipe objects
+        """
         recipe_array = []
-        if isinstance(self.json_input, tuple):
-            self.json_input = self.json_input[0]
-        _db_api = None
-        for value in self.json_input:
-            if "meals" in self.json_input:
-                _db_api = "meals"
-            elif "drinks" in self.json_input:
-                _db_api = "drinks"
-            recipe_array.append(self._convert_recipe(
-                _db_api=_db_api,
-                json_input_override=value
-            ))
+        json_input = self.json_input
+
+        if isinstance(json_input, tuple):
+            json_input = json_input[0]
+
+        db_type = None
+        if "meals" in json_input:
+            db_type = self.DB_MEALS
+        elif "drinks" in json_input:
+            db_type = self.DB_DRINKS
+
+        for value in json_input:
+            recipe_array.append(self._convert_recipe(db_type=db_type, json_input=value))
+
         return recipe_array
 
-    def _convert_image_url(self, *args):
+    def _convert_image_url(self):
+        """Convert image URL to standardized format."""
         return self.json_input
 
-    def _convert_ai_response(self, *args):
+    def _convert_ai_response(self):
+        """Convert AI response to standardized format."""
         return self.json_input
 
+    def _convert_search_results(self):
+        """
+        Convert search results to standardized format.
+
+        Returns:
+            Array of standardized search result objects
+        """
+        converted_results = []
+
+        for result in self.json_input:
+            if 'meals' in result:
+                # Handle meal results
+                meals = result['meals']
+                if isinstance(meals, list):
+                    for meal in meals:
+                        meal_data = {"meals": [meal]}
+                        recipe = self._convert_recipe(db_type=self.DB_MEALS, json_input=meal_data)
+                        converted_results.append({
+                            "database": "M",
+                            "recipe": recipe,
+                            "ingredient": None
+                        })
+                else:
+                    recipe = self._convert_recipe(db_type=self.DB_MEALS, json_input=result)
+                    converted_results.append({
+                        "database": "M",
+                        "recipe": recipe,
+                        "ingredient": None
+                    })
+            elif 'drinks' in result:
+                recipe = self._convert_recipe(db_type=self.DB_DRINKS, json_input=result)
+                converted_results.append({
+                    "database": "C",
+                    "recipe": recipe,
+                    "ingredient": None
+                })
+            else:
+                # Handle ingredient results
+                ingredient = self._convert_ingredient(json_input=result)
+                converted_results.append({
+                    "database": "I",
+                    "recipe": None,
+                    "ingredient": ingredient
+                })
+
+        return converted_results
 
 
 def standardize_api(schema_type=None):

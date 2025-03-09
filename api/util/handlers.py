@@ -3,8 +3,8 @@ from api.endpoints import TheMealDB, TheCocktailDB, NinjasCocktailAPI, NinjasRec
 _API_IDS = {
         "M": TheMealDB,
         "C": TheCocktailDB,
-        "N": NinjasCocktailAPI,
-        "R": NinjasRecipeAPI
+        # "N": NinjasCocktailAPI,
+        # "R": NinjasRecipeAPI
     }
 
 def handle_api_call(call_id: str, search_method: str = 'search_by_id'):
@@ -24,8 +24,14 @@ def handle_api_call(call_id: str, search_method: str = 'search_by_id'):
 
 
 def handle_id_calls(call_id: str):
-    return handle_api_call(call_id)
-
+    return handle_api_call(call_id, search_method='search_by_id')
 
 def handle_ingredient_calls(call_id: str):
     return handle_api_call(call_id, search_method='get_ingredient_by_id')
+
+def handle_name_search_calls(query: str):
+    response = []
+    for db_type in _API_IDS:
+        call_id = f"{db_type}+{query}"
+        response.append(handle_api_call(call_id, search_method='search_by_name'))
+    return response
