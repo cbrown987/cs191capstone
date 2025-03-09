@@ -36,7 +36,8 @@ class BaseTheDB(BaseDB):
         :param query: The name or keyword to search for.
         """
         route = "search.php?s=" + query
-        return self.get(route)
+        a = self.get(route)
+        return a
 
     def get_one_random(self):
         return self.get("random.php")

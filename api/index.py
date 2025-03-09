@@ -3,12 +3,11 @@ import logging
 from flask import Flask
 from flask_cors import CORS
 
-from api.config import Config
 from api.endpoints.AI.AI_base import AIBase
-from api.endpoints.base import standardize_api, verify_next_client
+from api.endpoints.base import standardize_api
 from api.endpoints.photos.pixabay import Pixabay
 from api.endpoints.thedb import TheMealDB, TheCocktailDB
-from api.util.handlers import handle_id_calls, handle_ingredient_calls
+from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls
 
 app = Flask(__name__)
 CORS(app)
@@ -50,6 +49,11 @@ def ingredients_by_id(call_id):
 @standardize_api(schema_type='IMAGE_URL')
 def get_image(query):
     return Pixabay().get_image_by_query(query)
+
+@app.route('/api/search/<string:query>', methods=['GET', 'POST'])
+@standardize_api(schema_type='SEARCH_RESULTS')
+def get_search_results(query):
+    return handle_name_search_calls(query)
 
 @app.route('/api/ai/description/<string:query>', methods=['GET', 'POST'])
 @standardize_api(schema_type='AI_RESPONSE_TEXT')
