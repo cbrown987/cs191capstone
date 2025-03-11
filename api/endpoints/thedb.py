@@ -152,7 +152,7 @@ class TheMealDB(BaseTheDB):
             all_suggestions += self.search_by_ingredient(ingredient)
 
         for id in all_suggestions: # Id is shadowing a builtin variable. Maybe s_id or suggestion?
-            if all_suggestions.count(id) > 1 and id not in meals: # undefined?
+            if all_suggestions.count(id) > 1 and id not in ids: # undefined?
                 ids.append(id)
         
         index = 0
