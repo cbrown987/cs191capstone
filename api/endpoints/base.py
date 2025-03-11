@@ -93,7 +93,7 @@ class StandardizeAPI:
     }
 
     IMAGE_URL = {
-        "type": "string",
+        "type": ["string", "null"],
         "pattern": r"^https?:\/\/.*\.(?:png|jpg|jpeg)$"
     }
 
@@ -169,8 +169,10 @@ class StandardizeAPI:
             Standardized ingredient object
         """
         json_value = json_input or self.json_input
-        if json_value['ingredients'] is None:
+
+        if not json_value:
             return None
+
         if isinstance(json_value, dict) and "ingredients" in json_value:
             try:
                 json_value = json_value["ingredients"][0]
@@ -179,13 +181,16 @@ class StandardizeAPI:
 
         id_key = "idIngredient"
         name_key = "strIngredient"
-        measurement_key = "strMeasure"  # Fixed key name
+        measurement_key = "strMeasure"
         description_key = "strDescription"
+
+        if name_key not in json_value:
+            return None
 
         ing_id = json_value.get(id_key)
 
         return {
-            "id": int(ing_id) if ing_id and ing_id.isdigit() else None,
+            "id": int(ing_id) if ing_id and isinstance(ing_id, str) and ing_id.isdigit() else None,
             "name": json_value[name_key],
             "measurement": json_value.get(measurement_key),
             "description": json_value.get(description_key)
