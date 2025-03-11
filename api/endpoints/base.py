@@ -351,12 +351,20 @@ class StandardizeAPI:
                         "ingredient": None
                     })
             else:
-                # Handle ingredient results
+                # TODO: Fix this hacky shit I wrote for demo
                 ingredient = self.convert_ingredient(json_input=result)
                 if ingredient:
                     database = "IM"
-                    if 'strABV' in result['ingredients'][0]:
-                        database = "IC"
+                    try:
+                        if 'strABV' in result['ingredients'][0]:
+                            database = "IC"
+                    except (KeyError, IndexError):
+                        pass
+                    try:
+                        if 'strABV' in result['ingredient'][0]:
+                            database = "IC"
+                    except (KeyError, IndexError):
+                        pass
                     converted_results.append({
                         "database": database,
                         "recipe": None,
