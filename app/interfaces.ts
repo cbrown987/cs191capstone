@@ -3,7 +3,6 @@ import {IngredientComponent} from "@/app/components/IngredentComponent/Ingredien
 export interface CardProps {
     imageSrc: string;
     title: string;
-    description: string;
 }
 
 export interface MenuLinkProps {
@@ -27,4 +26,8 @@ export interface IngredientComponentProps {
     name: string;
     description: string;
     imageURL: string;
+}
+
+export interface SearchBarProps {
+  initialQuery?: string;
 }

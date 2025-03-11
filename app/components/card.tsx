@@ -2,25 +2,22 @@ import Image from 'next/image';
 import React from "react";
 import {CardProps} from "@/app/interfaces";
 
-const Card: React.FC<CardProps> = ({ imageSrc, title, description }) => {
+const Card: React.FC<CardProps> = ({ imageSrc, title }) => {
     return (
-        <div className="bg-white text-gray-900 min-h-screen p-8 font-playfair max-w-4xl mx-auto border-deco">
-            <header className="text-center mb-8">
-                <h2 className="text-4xl md:text-5xl font-bold uppercase tracking-wide">
+        <div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
+            <div className="relative w-full h-40">
+                <Image
+                    src={imageSrc}
+                    alt={title}
+                    fill
+                    className="object-cover"
+                />
+            </div>
+
+            <div className="p-4 flex-grow">
+                <h2 className="text-xl font-serif tracking-wide text-[#902425] line-clamp-2">
                     {title}
                 </h2>
-            </header>
-
-            <Image
-                src={imageSrc}
-                alt={title}
-                width={400}
-                height={250}
-                className="w-full h-48 object-cover"
-            />
-
-            <div className="p-4">
-                <p className="text-gray-600 mt-2">{description}</p>
             </div>
         </div>
     );

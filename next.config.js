@@ -11,6 +11,9 @@ const nextConfig = {
       },
     ]
   },
+  images: {
+    domains: ['www.themealdb.com', 'www.thecocktaildb.com'],
+  },
   typescript: {
     ignoreBuildErrors: true,
   }
