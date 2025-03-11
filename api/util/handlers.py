@@ -1,4 +1,5 @@
 from api.endpoints import TheMealDB, TheCocktailDB, NinjasCocktailAPI, NinjasRecipeAPI
+from api.endpoints.base import StandardizeAPI
 
 _API_IDS = {
         "M": TheMealDB,
@@ -36,4 +37,9 @@ def handle_name_search_calls(query: str):
         call_return = handle_api_call(call_id, search_method='search_by_name')
         if call_return:
             response.append(call_return)
+
+        # Try to get an ingredient as well
+        ingredient_call_return = handle_api_call(call_id, search_method='get_ingredient_by_id')
+        if ingredient_call_return:
+            response.append(ingredient_call_return)
     return response

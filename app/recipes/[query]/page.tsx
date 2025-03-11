@@ -10,7 +10,6 @@ import {getSearch} from "@/app/lib/api";
 export default async ({params}: { params: Promise<{ query: string }> }) => {
   const id = (await params).query
   let search_results_json = await getSearch(id)
-  let sub = "food";
 
   return (
     <div className="container mx-auto p-4">
@@ -27,11 +26,23 @@ export default async ({params}: { params: Promise<{ query: string }> }) => {
 
             {search_results_json && search_results_json.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {search_results_json.map((item: {
-                  database: string | undefined;
-                  recipe: { id: any; imageURL: any; title: string; description: any; };
-                  ingredient: {id: any; name: any;}
-                  }, index: any) => (
+              {search_results_json.map((item: {
+                database: string | undefined;
+                recipe: { id: any; imageURL: any; title: string; description: any; };
+                ingredient: {id: any; name: any;}
+                }, index: any) =>
+                item.ingredient ? (
+                  <a
+                    href={`/ingredients/${item.database === 'IC' ? 'C-' : 'M-'}${item.ingredient.id}`}
+                    key={`ingredient-${index}`}
+                    className="transform hover:scale-105 transition-transform duration-200"
+                  >
+                    <Card
+                      imageSrc={'/images/default-ingredient.jpg'}
+                      title={item.ingredient.name}
+                    />
+                  </a>
+                ) : item.recipe ? (
                   <a
                     href={`/recipes/${item.database === 'C' ? 'drinks' : 'food'}/${item.recipe.id}`}
                     key={`recipe-${index}`}
@@ -42,9 +53,8 @@ export default async ({params}: { params: Promise<{ query: string }> }) => {
                       title={item.recipe.title}
                     />
                   </a>
-
-
-                ))}
+                ) : null
+          )}
               </div>
             ) : (
               <p className="text-gray-600">No results found matching your search.</p>
