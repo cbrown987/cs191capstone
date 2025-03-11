@@ -12,7 +12,7 @@ export default async ({ params }: { params: Promise<{ id: string }> }) => {
     cleanId = id.substring(2)
   }
   const recipie = await callIngredientApiWithID(type, cleanId)
-  let query = `${recipie['name']} Ingredient`
+  let query = `${recipie['name']}`
   let image_url = await getImage(query)
   let recipe_description = recipie['description']
 

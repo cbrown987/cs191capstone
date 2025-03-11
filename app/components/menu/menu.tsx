@@ -5,7 +5,6 @@ const getFoodItems = getApi("/api/food/recipes", 86400); // Cache for 24 hours
 const getDrinkItems = getApi("/api/drink/recipes", 86400); // Cache for 24 hours
 
 export const Menu = async () => {
-    // Await both requests together with proper error handling
     const [foodItemsResult, drinkItemsResult] = await Promise.allSettled([
         getFoodItems,
         getDrinkItems
@@ -14,7 +13,6 @@ export const Menu = async () => {
     const food_items = foodItemsResult.status === 'fulfilled' ? (foodItemsResult.value || []) : [];
     const drink_items = drinkItemsResult.status === 'fulfilled' ? (drinkItemsResult.value || []) : [];
 
-    // Log any errors that occurred
     if (foodItemsResult.status === 'rejected') {
         console.error("Failed to fetch food items:", foodItemsResult.reason);
     }
@@ -23,7 +21,6 @@ export const Menu = async () => {
         console.error("Failed to fetch drink items:", drinkItemsResult.reason);
     }
 
-    // Check if we have any data to display
     const hasFoodItems = Array.isArray(food_items) && food_items.length > 0;
     const hasDrinkItems = Array.isArray(drink_items) && drink_items.length > 0;
 
@@ -39,10 +36,30 @@ export const Menu = async () => {
             </header>
 
             <div className="grid grid-cols-2 gap-8 flex-grow">
+              <section>
+                    <h2 className="text-center text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
+                        Food
+                    </h2>
+
+                    <div className="mb-4">
+                        <ul className="space-y-0">
+                            {hasFoodItems ? (
+                                food_items.slice(0, 8).map((item, index) => (
+                                    <MenuLink
+                                        key={item['id'] || index}
+                                        linkText={item['title'] || 'Unnamed Item'}
+                                        link={item['id'] || '#'}
+                                        description={"food"}
+                                    />
+                                ))
+                            ) : (<li className="text-gray-500 italic text-center py-2">No food available</li>)}
+                        </ul>
+                    </div>
+                </section>
                 {/* Drinks Section */}
                 <section>
                     <h2 className="text-center text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
-                        Cocktails
+                        Drinks
                     </h2>
 
                     <div className="mb-4">
@@ -59,28 +76,6 @@ export const Menu = async () => {
                             ) : (
                                 <li className="text-gray-500 italic text-center py-2">No cocktails available</li>
                             )}
-                        </ul>
-                    </div>
-                </section>
-
-                {/* Food Section */}
-                <section>
-                    <h2 className="text-center text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
-                        Provisions
-                    </h2>
-
-                    <div className="mb-4">
-                        <ul className="space-y-0">
-                            {hasFoodItems ? (
-                                food_items.slice(0, 8).map((item, index) => (
-                                    <MenuLink
-                                        key={item['id'] || index}
-                                        linkText={item['title'] || 'Unnamed Item'}
-                                        link={item['id'] || '#'}
-                                        description={"food"}
-                                    />
-                                ))
-                            ) : (<li className="text-gray-500 italic text-center py-2">No food available</li>)}
                         </ul>
                     </div>
                 </section>
