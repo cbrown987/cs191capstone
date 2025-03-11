@@ -172,11 +172,11 @@ class StandardizeAPI:
 
         if not json_value:
             return None
-
+        # TODO: I hate this code
         if isinstance(json_value, dict) and "ingredients" in json_value:
             try:
                 json_value = json_value["ingredients"][0]
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, TypeError):
                 pass
 
         id_key = "idIngredient"
