@@ -140,8 +140,8 @@ class StandardizeAPI:
         self.json_input = json_input
 
         conversion_map = {
-            "INGREDIENT": self._convert_ingredient,
-            "RECIPE": self._convert_recipe,
+            "INGREDIENT": self.convert_ingredient,
+            "RECIPE": self.convert_recipe,
             "RECIPE_ARRAY": self._convert_recipe_array,
             "IMAGE_URL": self._convert_image_url,
             "AI_RESPONSE_TEXT": self._convert_ai_response,
@@ -158,7 +158,7 @@ class StandardizeAPI:
     def _verify(self):
         return validate(instance=self.converted_json, schema=self.schema)
 
-    def _convert_ingredient(self, json_input=None):
+    def convert_ingredient(self, json_input=None):
         """
         Convert ingredient JSON to standardized format.
 
@@ -169,7 +169,8 @@ class StandardizeAPI:
             Standardized ingredient object
         """
         json_value = json_input or self.json_input
-
+        if json_value['ingredients'] is None:
+            return None
         if isinstance(json_value, dict) and "ingredients" in json_value:
             try:
                 json_value = json_value["ingredients"][0]
@@ -218,7 +219,7 @@ class StandardizeAPI:
 
         return ingredients
 
-    def _convert_recipe(self, db_type=None, json_input=None):
+    def convert_recipe(self, db_type=None, json_input=None):
         """
         Convert recipe JSON to standardized format.
 
@@ -294,7 +295,7 @@ class StandardizeAPI:
             db_type = self.DB_DRINKS
 
         for value in json_input:
-            recipe_array.append(self._convert_recipe(db_type=db_type, json_input=value))
+            recipe_array.append(self.convert_recipe(db_type=db_type, json_input=value))
 
         return recipe_array
 
@@ -322,14 +323,14 @@ class StandardizeAPI:
                 if isinstance(meals, list):
                     for meal in meals:
                         meal_data = {"meals": [meal]}
-                        recipe = self._convert_recipe(db_type=self.DB_MEALS, json_input=meal_data)
+                        recipe = self.convert_recipe(db_type=self.DB_MEALS, json_input=meal_data)
                         converted_results.append({
                             "database": "M",
                             "recipe": recipe,
                             "ingredient": None
                         })
                 else:
-                    recipe = self._convert_recipe(db_type=self.DB_MEALS, json_input=result)
+                    recipe = self.convert_recipe(db_type=self.DB_MEALS, json_input=result)
                     if recipe:
                         converted_results.append({
                             "database": "M",
@@ -337,7 +338,7 @@ class StandardizeAPI:
                             "ingredient": None
                         })
             elif 'drinks' in result:
-                recipe = self._convert_recipe(db_type=self.DB_DRINKS, json_input=result)
+                recipe = self.convert_recipe(db_type=self.DB_DRINKS, json_input=result)
                 if recipe:
                     converted_results.append({
                         "database": "C",
@@ -346,10 +347,13 @@ class StandardizeAPI:
                     })
             else:
                 # Handle ingredient results
-                ingredient = self._convert_ingredient(json_input=result)
+                ingredient = self.convert_ingredient(json_input=result)
                 if ingredient:
+                    database = "IM"
+                    if 'strABV' in result['ingredients'][0]:
+                        database = "IC"
                     converted_results.append({
-                        "database": "I",
+                        "database": database,
                         "recipe": None,
                         "ingredient": ingredient
                     })
