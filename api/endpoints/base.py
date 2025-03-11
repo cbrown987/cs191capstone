@@ -242,6 +242,8 @@ class StandardizeAPI:
 
         if db_type == self.DB_MEALS:
             json_value = recipe_json_input.get("meals", [])
+            if json_value is None:
+                return None
             if isinstance(json_value, list) and json_value:
                 json_value = json_value[0]
             id_key = "idMeal"
@@ -250,6 +252,8 @@ class StandardizeAPI:
             max_ingredients = 20
         elif db_type == self.DB_DRINKS:
             json_value = recipe_json_input.get("drinks", [])
+            if json_value is None:
+                return None
             if isinstance(json_value, list) and json_value:
                 json_value = json_value[0]
             id_key = "idDrink"
@@ -326,26 +330,29 @@ class StandardizeAPI:
                         })
                 else:
                     recipe = self._convert_recipe(db_type=self.DB_MEALS, json_input=result)
+                    if recipe:
+                        converted_results.append({
+                            "database": "M",
+                            "recipe": recipe,
+                            "ingredient": None
+                        })
+            elif 'drinks' in result:
+                recipe = self._convert_recipe(db_type=self.DB_DRINKS, json_input=result)
+                if recipe:
                     converted_results.append({
-                        "database": "M",
+                        "database": "C",
                         "recipe": recipe,
                         "ingredient": None
                     })
-            elif 'drinks' in result:
-                recipe = self._convert_recipe(db_type=self.DB_DRINKS, json_input=result)
-                converted_results.append({
-                    "database": "C",
-                    "recipe": recipe,
-                    "ingredient": None
-                })
             else:
                 # Handle ingredient results
                 ingredient = self._convert_ingredient(json_input=result)
-                converted_results.append({
-                    "database": "I",
-                    "recipe": None,
-                    "ingredient": ingredient
-                })
+                if ingredient:
+                    converted_results.append({
+                        "database": "I",
+                        "recipe": None,
+                        "ingredient": ingredient
+                    })
 
         return converted_results
 

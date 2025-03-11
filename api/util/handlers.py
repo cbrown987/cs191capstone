@@ -33,5 +33,7 @@ def handle_name_search_calls(query: str):
     response = []
     for db_type in _API_IDS:
         call_id = f"{db_type}+{query}"
-        response.append(handle_api_call(call_id, search_method='search_by_name'))
+        call_return = handle_api_call(call_id, search_method='search_by_name')
+        if call_return:
+            response.append(call_return)
     return response

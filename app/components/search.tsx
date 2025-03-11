@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {SearchBarProps} from "@/app/interfaces";
 
-const SearchBar: React.FC = () => {
-    const [query, setQuery] = useState('');
+const SearchBar: React.FC<SearchBarProps> = ({ initialQuery = '' }) => {
+    const [query, setQuery] = useState(initialQuery);
     const router = useRouter();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

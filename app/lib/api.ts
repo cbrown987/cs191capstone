@@ -59,6 +59,10 @@ export async function getImage(query: string) {
     return await getApi(`/api/image/${query}`)
 }
 
+export async function getSearch(query: string) {
+  return await getApi(`/api/search/${query}`)
+}
+
 export async function getAIDescription(query: string) {
   return await getApi(`/api/ai/description/${query}`)
 }
