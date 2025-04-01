@@ -1,8 +1,16 @@
-/**
- * Helper function to get an api from the client
- * @param url The URL to fetch from. If it doesn't start with http:// or https://, the base URL will be prepended.
- * @param revalidateSeconds The number of seconds to cache calls. (optional)
- */
+// import { NextRequest, NextResponse } from 'next/server';
+// import { Client } from 'pg';
+import { Pool } from 'pg';
+
+// Hardcoded RDS credentials for now
+const pool = new Pool({ 
+  // Hardcoded in, will provide in class. 
+  ssl: {
+    rejectUnauthorized: false, 
+  },
+});
+
+
 export async function getApi(url: string, revalidateSeconds?: number): Promise<any> {
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
 
@@ -17,7 +25,6 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
   // if (revalidateSeconds !== undefined) {
   //   fetchOptions.next = { revalidate: revalidateSeconds };
   // }
-
   try {
     const response = await fetch(fullUrl, fetchOptions);
     if (!response.ok) {
@@ -70,4 +77,48 @@ export async function getAIDescription(query: string) {
 
 export async function getAISubstitutions(query: string) {
   return await getApi(`/api/ai/substitutions/${query}`)
+}
+
+
+export async function handleRequest(body: any) {
+  const client = await pool.connect(); // gets a fresh client
+  try {
+    const { type } = body;
+
+    if (type === 'login') {
+      const { username, password } = body;
+      const result = await client.query(
+        'SELECT * FROM users WHERE username = $1 AND password = $2',
+        [username, password]
+      );
+      return result.rows.length > 0
+        ? { success: true, user: result.rows[0] }
+        : { success: false, message: 'Invalid credentials' };
+    }
+
+    if (type === 'signup') {
+      const { name, username, email, password, about, saved_recipes } = body;
+      await client.query(
+        'INSERT INTO users (name, username, email, password, about, saved_recipes) VALUES ($1, $2, $3, $4, $5, $6::jsonb)',
+        [name, username, email, password, about, JSON.stringify(saved_recipes)]
+      );
+      return { success: true, message: 'User created' };
+    }
+
+    if (type === 'save_recipe') {
+      const { username, new_recipe } = body;
+      await client.query(
+        'UPDATE users SET saved_recipes = saved_recipes || $1::jsonb WHERE username = $2',
+        [JSON.stringify([new_recipe]), username]
+      );
+      return { success: true, message: 'Recipe saved' };
+    }
+
+    return { success: false, message: 'Unsupported request type' };
+  } catch (err) {
+    console.error('DB handler error:', err);
+    return { success: false, message: 'DB error' };
+  } finally {
+    client.release();
+  }
 }
