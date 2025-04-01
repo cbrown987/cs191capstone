@@ -1,5 +1,6 @@
 // import { NextRequest, NextResponse } from 'next/server';
 // import { Client } from 'pg';
+// @ts-ignore
 import { Pool } from 'pg';
 
 // Hardcoded RDS credentials for now
