@@ -5,9 +5,14 @@ import { useState } from 'react';
 interface SaveRecipeButtonProps {
   recipeId: string;
   recipeName: string;
+  recipeType: 'food' | 'drink';
 }
 
-export default function SaveRecipeButton({ recipeId, recipeName }: SaveRecipeButtonProps) {
+export default function SaveRecipeButton({
+  recipeId,
+  recipeName,
+  recipeType,
+}: SaveRecipeButtonProps) {
   const [saved, setSaved] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -26,8 +31,10 @@ export default function SaveRecipeButton({ recipeId, recipeName }: SaveRecipeBut
       body: JSON.stringify({
         type: 'save_recipe',
         username: user.username,
-        new_recipe: { [recipeName]: recipeId }
-      })
+        recipeName,
+        recipeId,       // un-prefixed ID
+        recipeType,     // "food" or "drink"
+      }),
     });
 
     const data = await res.json();
