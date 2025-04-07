@@ -30,7 +30,6 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-6 text-gray-800 font-serif">
-      {/* Profile Card */}
       <div className="bg-white shadow-md border border-gray-200 rounded-2xl p-6 mb-8">
         <h1 className="text-3xl font-bold mb-2 text-[#902425]">Welcome, {user.name}</h1>
         <p className="text-sm text-gray-500 italic">@{user.username}</p>
@@ -38,7 +37,6 @@ export default function ProfilePage() {
         <p className="mt-2 text-sm text-gray-500">Email: {user.email}</p>
       </div>
 
-      {/* Saved Recipes Section */}
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold text-[#902425]">Saved Recipes</h2>
         <button
@@ -53,15 +51,20 @@ export default function ProfilePage() {
         {recentRecipes.length > 0 ? (
           recentRecipes.map((recipe, index) => {
             const name = Object.keys(recipe)[0];
-            const id = recipe[name];
+            const fullId = recipe[name]?.trim().toUpperCase();
+            if (!name || !fullId) return null;
+
+            const type = fullId.startsWith("M") ? "food" : "drinks";
+            const id = fullId.slice(1);
+
             return (
               <div
                 key={index}
                 className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition cursor-pointer"
-                onClick={() => router.push(`/recipes/${id}`)}
+                onClick={() => router.push(`/recipes/${type}/${id}`)}
               >
                 <h3 className="text-md font-medium text-gray-700">{name}</h3>
-                <p className="text-xs text-gray-400">Recipe ID: {id}</p>
+                <p className="text-xs text-gray-400">Recipe ID: {fullId}</p>
               </div>
             );
           })
@@ -70,7 +73,6 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Logout */}
       <div className="mt-10">
         <button
           onClick={() => {

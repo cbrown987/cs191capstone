@@ -5,7 +5,7 @@ import { Pool } from 'pg';
 
 // Hardcoded RDS credentials for now
 const pool = new Pool({ 
-  // Hardcoded in, will provide in class. 
+
   ssl: {
     rejectUnauthorized: false, 
   },
@@ -108,11 +108,24 @@ export async function handleRequest(body: any) {
     }
 
     if (type === 'save_recipe') {
-      const { username, new_recipe } = body;
+      const { username, recipeName, recipeId, recipeType } = body;
+    
+      console.log("Save recipe incoming data:", { username, recipeName, recipeId, recipeType });
+    
+      if (!username || !recipeName || !recipeId || !recipeType) {
+        return { success: false, message: 'Missing recipe fields' };
+      }
+    
+      const prefix = (recipeType === "drink" || recipeType === "drinks") ? "C" : "M";
+      const fullId = `${prefix}${recipeId}`;
+    
+      const newRecipe = { [recipeName]: fullId };
+    
       await client.query(
         'UPDATE users SET saved_recipes = saved_recipes || $1::jsonb WHERE username = $2',
-        [JSON.stringify([new_recipe]), username]
+        [JSON.stringify([newRecipe]), username]
       );
+    
       return { success: true, message: 'Recipe saved' };
     }
 
