@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import {IngredientComponentProps} from "@/app/interfaces";
 import {getAISubstitutions} from "@/app/lib/api";
 
+
+
 export const IngredientComponent: React.FC<IngredientComponentProps> = ({
     id,
     name,
@@ -14,11 +16,47 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
     const [loading, setLoading] = useState(false);
 
     const handleGetSubstitutes = async () => {
-        setLoading(true);
-        const fetchedSubstitutes = await getAISubstitutions(name);
-        setSubstitutes(fetchedSubstitutes);
-        setLoading(false);
-    };
+      try {
+          setLoading(true);
+          const fetchedSubstitutes = await getAISubstitutions(name);
+
+          // Process the response based on its type
+          if (typeof fetchedSubstitutes === 'string') {
+              // If it's already a string, use it directly
+              setSubstitutes(fetchedSubstitutes);
+          } else if (typeof fetchedSubstitutes === 'object' && fetchedSubstitutes !== null) {
+              // If it's an object, try to extract useful content
+              if (fetchedSubstitutes.text) {
+                  // If it has a text property (common in AI responses)
+                  setSubstitutes(fetchedSubstitutes.text);
+              } else if (Array.isArray(fetchedSubstitutes)) {
+                  // If it's an array, format it as HTML list
+                  const htmlList = `<ul>${fetchedSubstitutes.map(sub => `<li>${sub}</li>`).join('')}</ul>`;
+                  setSubstitutes(htmlList);
+              } else if (Array.isArray(fetchedSubstitutes.substitutes)) {
+                  // If it has a substitutes array property
+                  const htmlList = `<ul>${fetchedSubstitutes.substitutes.map((sub: any) => `<li>${sub}</li>`).join('')}</ul>`;
+                  setSubstitutes(htmlList);
+              } else if (Array.isArray(fetchedSubstitutes.items)) {
+                  // If it has an items array property
+                  const htmlList = `<ul>${fetchedSubstitutes.items.map((sub: any) => `<li>${sub}</li>`).join('')}</ul>`;
+                  setSubstitutes(htmlList);
+              } else {
+                  // If we can't determine the structure, stringify it
+                  console.log('Unexpected substitutes format:', fetchedSubstitutes);
+                  setSubstitutes(JSON.stringify(fetchedSubstitutes));
+              }
+          } else {
+              // For any other type, convert to string
+              setSubstitutes(String(fetchedSubstitutes));
+          }
+      } catch (error) {
+          console.error('Error fetching substitutes:', error);
+          setSubstitutes('<p class="text-red-500">Error fetching substitutes. Please try again.</p>');
+      } finally {
+          setLoading(false);
+      }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 bg-white min-h-screen flex flex-col">
