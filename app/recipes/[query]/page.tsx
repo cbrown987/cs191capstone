@@ -9,7 +9,8 @@ import {getSearch} from "@/app/lib/api";
 
 export default async ({params}: { params: Promise<{ query: string }> }) => {
   const id = (await params).query
-  let search_results_json = await getSearch(id)
+  let response = await getSearch(id)
+  let search_results_json = await response.results
 
   return (
     <div className="container mx-auto p-4">
