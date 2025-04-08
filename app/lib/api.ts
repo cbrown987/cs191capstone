@@ -4,11 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
 // Hardcoded RDS credentials for now
-console.log("AWS_USER:", process.env.AWS_USER);
-console.log("AWS_HOST:", process.env.AWS_HOST);
-console.log("AWS_DATABASE:", process.env.AWS_DATABASE);
-console.log("AWS_PASSWORD:", process.env.AWS_PASSWORD);
-console.log("AWS_PORT:", process.env.AWS_PORT);
 const pool = new Pool({
   user: process.env.AWS_USER,
   host: String(process.env.AWS_HOST),
