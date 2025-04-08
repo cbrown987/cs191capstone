@@ -69,11 +69,11 @@ async function callWithID(url: string, api: string, id: string): Promise<any> {
 
 export async function getImage(query: string) {
   const result = query.replace(/\s+/g, '+');
-  return await getApi(`/api/image/${result}`)
+  return await getApi(`/api/image?query=${result}`)
 }
 
 export async function getSearch(query: string) {
-  return await getApi(`/api/search/${query}`)
+  return await getApi(`/api/search?query=${query}`)
 }
 
 export async function getAIDescription(query: string) {

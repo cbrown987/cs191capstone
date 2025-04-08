@@ -71,15 +71,18 @@ async def ingredients_by_id(call_id: str):
     return ingredient
 
 
-@app.get("/api/image/{query}", response_model=ImageURL)
+@app.get("/api/image", response_model=ImageURL)
 async def get_image(query: str):
     """Get image by query"""
     pixabay = await get_pixabay()
     image_url = pixabay.get_image_by_query(query)
-    return {"url": image_url}
+    if not image_url:
+        return ImageURL(url="")
+    return ImageURL(url=image_url)
 
 
-@app.get("/api/search/{query}", response_model=SearchResult)
+
+@app.get("/api/search", response_model=SearchResult)
 async def get_search_results(query: str):
     """Get search results by query"""
     search_results = handle_name_search_calls(query)
@@ -91,7 +94,7 @@ async def get_ai_description(query: str):
     """Get AI description by query"""
     aibase = await get_aibase()
     description = aibase.query_for_description(query)
-    return {"text": description}
+    return AIResponseText(text=description)
 
 
 @app.get("/api/ai/substitutions/{query}", response_model=AIResponseText)
@@ -99,7 +102,7 @@ async def get_ai_substitution(query: str):
     """Get AI substitution by query"""
     aibase = await get_aibase()
     substitution = aibase.query_for_substitutions(query)
-    return {"text": substitution}
+    return AIResponseText(text=substitution)
 
 
 logging.basicConfig(level=logging.INFO, filename='fastapi-app.log')

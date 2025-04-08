@@ -21,8 +21,8 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
   for (const key in ingredients) {
     ingredients[key].id =
       type === "food"
-        ? ingredients[key].name
-        : `C-${ingredients[key].name}`;
+        ? `${ingredients[key].name}`
+        : `${ingredients[key].name}`;
   }
 
   return (
