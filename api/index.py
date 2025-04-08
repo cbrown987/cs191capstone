@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 from fastapi import FastAPI
@@ -103,9 +102,6 @@ async def get_ai_substitution(query: str):
     aibase = await get_aibase()
     substitution = aibase.query_for_substitutions(query)
     return AIResponseText(text=substitution)
-
-
-logging.basicConfig(level=logging.INFO, filename='fastapi-app.log')
 
 if __name__ == "__main__":
     import uvicorn
