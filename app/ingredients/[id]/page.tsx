@@ -4,30 +4,24 @@ import {IngredientComponent} from "@/app/components/IngredentComponent/Ingredien
 export default async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id
 
-  let type = "M"
-  let cleanId = id
+  let ingredient = await callIngredientApiWithID(id)
+  let descriptionData = ingredient.description || await getAIDescription(ingredient.name)
+  let imageURLData = ingredient.imageURL || await getImage(ingredient.name)
 
-  if (id.startsWith("C-")) {
-    type = "C"
-    cleanId = id.substring(2)
-  }
-  const recipie = await callIngredientApiWithID(type, cleanId)
-  let query = `${recipie['name']}`
-  let image_url = await getImage(query)
-  let recipe_description = recipie['description']
+  const description = typeof descriptionData === 'object' && descriptionData.text
+    ? descriptionData.text
+    : descriptionData
 
-  if(recipe_description === null) {
-      recipe_description = await getAIDescription(recipie['name'])
-  }
+  const processedImageURL = typeof imageURLData === 'object' && imageURLData.url
+    ? imageURLData.url
+    : (typeof imageURLData === 'string' ? imageURLData : null)
 
-  return(
-    <>
-      <IngredientComponent
-          id={recipie['id']}
-          name={recipie['name']}
-          description={recipe_description}
-          imageURL={image_url}
-      />
-    </>
+  return (
+    <IngredientComponent
+      id={ingredient.id || null}
+      name={ingredient.name}
+      description={description}
+      imageURL={processedImageURL}
+    />
   )
 }
