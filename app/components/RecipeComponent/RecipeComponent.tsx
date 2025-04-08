@@ -1,6 +1,10 @@
+'use client';
+
 import React from "react";
 import { RecipeComponentProps } from "@/app/interfaces";
+import SaveRecipeButton from "../SaveRecipeButton";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export const RecipeComponent: React.FC<RecipeComponentProps> = ({
   id,
@@ -9,27 +13,30 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
   imageURL,
   instructions,
   ingredients,
-  type
 }) => {
-  if (type=='food'){
-    for (const ingredientsKey in ingredients) {
-      ingredients[ingredientsKey].id = ingredients[ingredientsKey].name
-    }
-  }
-  else{
-    for (const ingredientsKey in ingredients) {
-      ingredients[ingredientsKey].id = 'C-' + ingredients[ingredientsKey].name
-    }
+  const pathname = usePathname();
+  const isFood = pathname.includes("/food/");
+  const type = isFood ? "food" : "drinks";
+
+  for (const key in ingredients) {
+    ingredients[key].id =
+      type === "food"
+        ? ingredients[key].name
+        : `C-${ingredients[key].name}`;
   }
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 bg-white min-h-screen flex flex-col">
-      {/* Header / Title */}
       <header className="text-center mb-6">
-        <h1 className="text-3xl font-serif tracking-wide text-[#902425]">
-          {title}
-        </h1>
-        <div className="mt-3 mb-5 flex items-center justify-center">
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <h1 className="text-3xl font-serif tracking-wide text-[#902425]">
+            {title}
+          </h1>
+          <SaveRecipeButton
+            recipeId={id}
+            recipeName={title}
+            recipeType={type}
+          />
         </div>
       </header>
 
@@ -44,13 +51,14 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
 
         <div className="md:w-1/2">
           {description && (
-             <section>
-                <h2 className="text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
-                  Description
-                </h2>
-                <p className="text-gray-700 mb-6">{description}</p>
-              </section>
+            <section>
+              <h2 className="text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
+                Description
+              </h2>
+              <p className="text-gray-700 mb-6">{description}</p>
+            </section>
           )}
+
           <section className="mt-6">
             <h2 className="text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
               Ingredients
@@ -60,7 +68,8 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
                 <li key={`${ingredient.id}-${index}`}>
                   <Link
                     href={`/ingredients/${ingredient.id}`}
-                    className="text-gray-600 hover:text-[#902425] cursor-pointer">
+                    className="text-gray-600 hover:text-[#902425] cursor-pointer"
+                  >
                     {ingredient.measurement} {ingredient.name}
                   </Link>
                 </li>
