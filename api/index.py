@@ -1,77 +1,109 @@
 import logging
+from typing import List
 
-from flask import Flask
-from flask_cors import CORS
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from api.util.conversions import Recipe, Ingredient, ImageURL, SearchResult, AIResponseText, convert_to_recipe
+
+from api.endpoints import TheMealDB, TheCocktailDB
 from api.endpoints.AI.AI_base import AIBase
-from api.endpoints.base import standardize_api
 from api.endpoints.photos.pixabay import Pixabay
-from api.endpoints.thedb import TheMealDB, TheCocktailDB
 from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls
 
-app = Flask(__name__)
-CORS(app)
+app = FastAPI()
 
-@app.route('/api/food/recipes', methods=['GET', 'POST'])
-@standardize_api(schema_type='RECIPE_ARRAY')
-def food_recipes():
-    """
-    Get 10 random food recipes
-    """
-    return TheMealDB().get_n_random(4)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
-@app.route('/api/food/recipes/<string:call_id>', methods=['GET', 'POST'])
-@app.route('/api/drink/recipes/<string:call_id>', methods=['GET', 'POST'])
-@standardize_api(schema_type='RECIPE')
-def recipe_from_id(call_id):
-    """
-    Handles API calls for recipe retrieval based on ID
-    calls are in the form <API>+<ID>
-    """
-    return handle_id_calls(call_id)
+async def get_themealdb() -> TheMealDB:
+   return TheMealDB()
 
-@app.route('/api/drink/recipes', methods=['GET', 'POST'])
-@standardize_api(schema_type='RECIPE_ARRAY')
-def drink_recipes():
-    """
-    Get 10 random drink recipes
-    """
-    return TheCocktailDB().get_n_random(4)
+async def get_thecocktaildb() -> TheCocktailDB:
+   return TheCocktailDB()
 
+async def get_pixabay() -> Pixabay:
+   return Pixabay()
 
-@app.route('/api/ingredients/<string:call_id>', methods=['GET', 'POST'])
-@standardize_api(schema_type='INGREDIENT')
-def ingredients_by_id(call_id):
-    return handle_ingredient_calls(call_id)
+async def get_aibase() -> AIBase:
+   return AIBase()
+
+# ************
+# ** Routes **
+# ************
+@app.get("/api/food/recipes", response_model=List[Recipe])
+async def food_recipes():
+    themealdb = await get_themealdb()
+    meals = themealdb.get_n_random(4)
+    recipes = [convert_to_recipe(meal) for meal in meals]
+    return recipes
 
 
-@app.route('/api/image/<string:query>', methods=['GET', 'POST'])
-@standardize_api(schema_type='IMAGE_URL')
-def get_image(query):
-    return Pixabay().get_image_by_query(query)
 
-@app.route('/api/search/<string:query>', methods=['GET', 'POST'])
-@standardize_api(schema_type='SEARCH_RESULTS')
-def get_search_results(query):
-    return handle_name_search_calls(query)
-
-@app.route('/api/ai/description/<string:query>', methods=['GET', 'POST'])
-@standardize_api(schema_type='AI_RESPONSE_TEXT')
-def get_ai_description(query):
-    return AIBase().query_for_description(query)
-
-@app.route('/api/ai/substitutions/<string:query>', methods=['GET', 'POST'])
-@standardize_api(schema_type='AI_RESPONSE_TEXT')
-def get_ai_substitution(query):
-    return AIBase().query_for_substitutions(query)
+@app.get("/api/food/recipes/{call_id}", response_model=Recipe)
+@app.get("/api/drink/recipes/{call_id}", response_model=Recipe)
+async def recipe_from_id(call_id: str):
+    """Handles API calls for recipe retrieval based on ID"""
+    recipe = handle_id_calls(call_id)
+    return recipe
 
 
-if app.debug:
-    file_handler = logging.FileHandler('flask-app.log')
-    file_handler.setLevel(logging.WARNING)
-    app.logger.addHandler(file_handler)
+@app.get("/api/drink/recipes", response_model=List[Recipe])
+async def get_random_drink_recipes():
+    """Get a list of random drink recipes."""
+    thecocktaildb = await get_thecocktaildb()
+    drinks = thecocktaildb.get_n_random(4)
+    recipes = [convert_to_recipe(drink) for drink in drinks]
+    return recipes
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
 
+@app.get("/api/ingredients/{call_id}", response_model=Ingredient)
+async def ingredients_by_id(call_id: str):
+    """Get ingredient by id"""
+    print("call id: " + call_id)
+    ingredient = handle_ingredient_calls(call_id)
+    return ingredient
+
+
+@app.get("/api/image/{query}", response_model=ImageURL)
+async def get_image(query: str):
+    """Get image by query"""
+    pixabay = await get_pixabay()
+    image_url = pixabay.get_image_by_query(query)
+    return {"url": image_url}
+
+
+@app.get("/api/search/{query}", response_model=SearchResult)
+async def get_search_results(query: str):
+    """Get search results by query"""
+    search_results = handle_name_search_calls(query)
+    return search_results
+
+
+@app.get("/api/ai/description/{query}", response_model=AIResponseText)
+async def get_ai_description(query: str):
+    """Get AI description by query"""
+    aibase = await get_aibase()
+    description = aibase.query_for_description(query)
+    return {"text": description}
+
+
+@app.get("/api/ai/substitutions/{query}", response_model=AIResponseText)
+async def get_ai_substitution(query: str):
+    """Get AI substitution by query"""
+    aibase = await get_aibase()
+    substitution = aibase.query_for_substitutions(query)
+    return {"text": substitution}
+
+
+logging.basicConfig(level=logging.INFO, filename='fastapi-app.log')
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5328)
