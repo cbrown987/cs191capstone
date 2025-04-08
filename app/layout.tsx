@@ -3,11 +3,10 @@ import './globals.css'
 
 import TopNav from "@/app/components/topNav";
 import {useUser} from "@/app/hooks/Auth";
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/react";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-      const { user } = useUser();
-
+    const { user } = useUser();
     return (
         <html lang="en">
             <Analytics />
