@@ -16,7 +16,7 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
 }) => {
   const pathname = usePathname();
   const isFood = pathname.includes("/food/");
-  const type = isFood ? "food" : "drinks";
+  const type = isFood ? "food" : "drink";
 
   for (const key in ingredients) {
     ingredients[key].id =
