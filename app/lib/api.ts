@@ -1,16 +1,25 @@
-// import { NextRequest, NextResponse } from 'next/server';
-// // import { Client } from 'pg';
-// // @ts-ignore
-// import { Pool } from 'pg';
-//
-// // Hardcoded RDS credentials for now
-// const pool = new Pool({
-//   // Hardcoded in, will provide in class.
+import { NextRequest, NextResponse } from 'next/server';
+// import { Client } from 'pg';
+// @ts-ignore
+import { Pool } from 'pg';
 
-//   ssl: {
-//     rejectUnauthorized: false,
-//   },
-// });
+// Hardcoded RDS credentials for now
+console.log("AWS_USER:", process.env.AWS_USER);
+console.log("AWS_HOST:", process.env.AWS_HOST);
+console.log("AWS_DATABASE:", process.env.AWS_DATABASE);
+console.log("AWS_PASSWORD:", process.env.AWS_PASSWORD);
+console.log("AWS_PORT:", process.env.AWS_PORT);
+const pool = new Pool({
+  user: process.env.AWS_USER,
+  host: String(process.env.AWS_HOST),
+  database: process.env.AWS_DATABASE,
+  password: process.env.AWS_PASSWORD,
+  port: parseInt(process.env.AWS_PORT || '5432'),
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  connectionTimeoutMillis: 5000,
+});
 
 
 
@@ -85,58 +94,58 @@ export async function getAISubstitutions(query: string) {
 }
 
 
-// export async function handleRequest(body: any) {
-//   const client = await pool.connect(); // gets a fresh client
-//   try {
-//     const { type } = body;
-//
-//     if (type === 'login') {
-//       const { username, password } = body;
-//       const result = await client.query(
-//         'SELECT * FROM users WHERE username = $1 AND password = $2',
-//         [username, password]
-//       );
-//       return result.rows.length > 0
-//         ? { success: true, user: result.rows[0] }
-//         : { success: false, message: 'Invalid credentials' };
-//     }
-//
-//     if (type === 'signup') {
-//       const { name, username, email, password, about, saved_recipes } = body;
-//       await client.query(
-//         'INSERT INTO users (name, username, email, password, about, saved_recipes) VALUES ($1, $2, $3, $4, $5, $6::jsonb)',
-//         [name, username, email, password, about, JSON.stringify(saved_recipes)]
-//       );
-//       return { success: true, message: 'User created' };
-//     }
-//
-//     if (type === 'save_recipe') {
-//       const { username, recipeName, recipeId, recipeType } = body;
-//
-//       console.log("Save recipe incoming data:", { username, recipeName, recipeId, recipeType });
-//
-//       if (!username || !recipeName || !recipeId || !recipeType) {
-//         return { success: false, message: 'Missing recipe fields' };
-//       }
-//
-//       const prefix = (recipeType === "drink" || recipeType === "drinks") ? "C" : "M";
-//       const fullId = `${prefix}${recipeId}`;
-//
-//       const newRecipe = { [recipeName]: fullId };
-//
-//       await client.query(
-//         'UPDATE users SET saved_recipes = saved_recipes || $1::jsonb WHERE username = $2',
-//         [JSON.stringify([newRecipe]), username]
-//       );
-//
-//       return { success: true, message: 'Recipe saved' };
-//     }
-//
-//     return { success: false, message: 'Unsupported request type' };
-//   } catch (err) {
-//     console.error('DB handler error:', err);
-//     return { success: false, message: 'DB error' };
-//   } finally {
-//     client.release();
-//   }
-// }
+export async function handleRequest(body: any) {
+  const client = await pool.connect(); // gets a fresh client
+  try {
+    const { type } = body;
+
+    if (type === 'login') {
+      const { username, password } = body;
+      const result = await client.query(
+        'SELECT * FROM users WHERE username = $1 AND password = $2',
+        [username, password]
+      );
+      return result.rows.length > 0
+        ? { success: true, user: result.rows[0] }
+        : { success: false, message: 'Invalid credentials' };
+    }
+
+    if (type === 'signup') {
+      const { name, username, email, password, about, saved_recipes } = body;
+      await client.query(
+        'INSERT INTO users (name, username, email, password, about, saved_recipes) VALUES ($1, $2, $3, $4, $5, $6::jsonb)',
+        [name, username, email, password, about, JSON.stringify(saved_recipes)]
+      );
+      return { success: true, message: 'User created' };
+    }
+
+    if (type === 'save_recipe') {
+      const { username, recipeName, recipeId, recipeType } = body;
+
+      console.log("Save recipe incoming data:", { username, recipeName, recipeId, recipeType });
+
+      if (!username || !recipeName || !recipeId || !recipeType) {
+        return { success: false, message: 'Missing recipe fields' };
+      }
+
+      const prefix = (recipeType === "drink" || recipeType === "drinks") ? "C" : "M";
+      const fullId = `${prefix}${recipeId}`;
+
+      const newRecipe = { [recipeName]: fullId };
+
+      await client.query(
+        'UPDATE users SET saved_recipes = saved_recipes || $1::jsonb WHERE username = $2',
+        [JSON.stringify([newRecipe]), username]
+      );
+
+      return { success: true, message: 'Recipe saved' };
+    }
+
+    return { success: false, message: 'Unsupported request type' };
+  } catch (err) {
+    console.error('DB handler error:', err);
+    return { success: false, message: 'DB error' };
+  } finally {
+    client.release();
+  }
+}

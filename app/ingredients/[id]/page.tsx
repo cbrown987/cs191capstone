@@ -15,7 +15,6 @@ export default async ({ params }: { params: Promise<{ id: string }> }) => {
   const processedImageURL = typeof imageURLData === 'object' && imageURLData.url
     ? imageURLData.url
     : (typeof imageURLData === 'string' ? imageURLData : null)
-
   return (
     <IngredientComponent
       id={ingredient.id || null}
