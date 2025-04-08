@@ -13,6 +13,7 @@
 // });
 
 
+
 export async function getApi(url: string, revalidateSeconds?: number): Promise<any> {
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
 
@@ -67,7 +68,8 @@ async function callWithID(url: string, api: string, id: string): Promise<any> {
 }
 
 export async function getImage(query: string) {
-    return await getApi(`/api/image/${query}`)
+  const result = query.replace(/\s+/g, '+');
+  return await getApi(`/api/image/${result}`)
 }
 
 export async function getSearch(query: string) {

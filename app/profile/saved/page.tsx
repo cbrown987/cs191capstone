@@ -30,33 +30,42 @@ export default function SavedRecipesPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-6 text-gray-800 font-serif">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-[#902425]">All Saved Recipes</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {recipes.length} total saved {recipes.length === 1 ? 'recipe' : 'recipes'}.
-        </p>
-      </div>
+      <h1 className="text-3xl font-bold mb-6 text-[#902425]">All Saved Recipes</h1>
 
-      {recipes.length === 0 ? (
-        <p className="text-gray-500">No saved recipes yet.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {recipes.map((recipe, index) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {recipes.length > 0 ? (
+          recipes.map((recipe, index) => {
             const name = Object.keys(recipe)[0];
-            const id = recipe[name];
+            const fullId = recipe[name]?.trim().toUpperCase();
+            if (!name || !fullId) return null;
+
+            const type = fullId.startsWith("M") ? "food" : "drinks";
+            const id = fullId.slice(1);
+
             return (
               <div
                 key={index}
                 className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition cursor-pointer"
-                onClick={() => router.push(`/recipes/${id}`)}
+                onClick={() => router.push(`/recipes/${type}/${id}`)}
               >
                 <h3 className="text-md font-medium text-gray-700">{name}</h3>
-                <p className="text-xs text-gray-400">Recipe ID: {id}</p>
+                <p className="text-xs text-gray-400">Recipe ID: {fullId}</p>
               </div>
             );
-          })}
-        </div>
-      )}
+          })
+        ) : (
+          <p className="text-sm text-gray-500">No saved recipes yet.</p>
+        )}
+      </div>
+
+      <div className="mt-10 text-center">
+        <button
+          onClick={() => router.push('/profile')}
+          className="text-sm text-gray-500 hover:text-[#902425] underline transition"
+        >
+          Back to Profile
+        </button>
+      </div>
     </div>
   );
 }
