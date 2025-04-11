@@ -45,7 +45,7 @@ export default async ({params}: { params: Promise<{ query: string }> }) => {
                   </a>
                 ) : item.recipe ? (
                   <a
-                    href={`/recipes/${item.database === 'C' ? 'drinks' : 'food'}/${item.recipe.id}`}
+                    href={`/recipes/${item.database === 'D' ? 'drinks' : 'food'}/${item.recipe.id}`}
                     key={`recipe-${index}`}
                     className="transform hover:scale-105 transition-transform duration-200"
                   >

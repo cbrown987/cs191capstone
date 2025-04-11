@@ -20,8 +20,8 @@ class BaseTheDB(BaseDB):
         :param headers: Optional headers to include in the HTTP requests.
         """
         api_key = "1"  # Basic API key for free API calls.
-        endpoint = base_url + "/" + api_key + "/"
-        super().__init__(endpoint, headers)
+        self.endpoint = base_url + "/" + api_key + "/"
+        super().__init__(self.endpoint, headers)
 
     def decode(self, response):
         """
@@ -36,8 +36,7 @@ class BaseTheDB(BaseDB):
         :param query: The name or keyword to search for.
         """
         route = "search.php?s=" + query
-        a = self.get(route)
-        return a
+        return self.get(route)
 
     def get_one_random(self):
         return self.get("random.php")

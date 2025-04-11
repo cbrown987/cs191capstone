@@ -69,7 +69,15 @@ def convert_to_recipe(item: Dict[str, Any]) -> Recipe:
         raise ValueError("Could not determine item type (meal or drink).")
 
     item = item[key][0] if isinstance(item[key], list) else item[key]
-
+    if item is None:
+        return Recipe(
+            id="",
+            title="",
+            description="",
+            instructions="",
+            imageURL="",
+            ingredients=[]
+        )
     ingredient_count = 21 if item_type == 'meal' else 16
     ingredients: List[Ingredient] = []
     for i in range(1, ingredient_count):

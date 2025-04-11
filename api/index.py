@@ -8,6 +8,7 @@ from api.endpoints.AI.AI_base import AIBase
 from api.endpoints.photos.pixabay import Pixabay
 from api.util.conversions import Recipe, ImageURL, AIResponseText, convert_to_recipe, \
     convert_to_search_results, combine_search_results, Ingredient, SearchResult, Menu
+from api.util.filtering import ContentFilter
 from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls, handle_menu_calls
 
 app = FastAPI()
@@ -68,7 +69,8 @@ async def recipe_from_id(call_id: str):
 async def get_random_drink_recipes():
     """Get a list of random drink recipes."""
     thecocktaildb = await get_thecocktaildb()
-    drinks = thecocktaildb.get_n_random(4)
+    content_filter = ContentFilter(thecocktaildb)
+    drinks = content_filter.get_n_random(10)
     recipes = [convert_to_recipe(drink) for drink in drinks]
     return recipes
 
