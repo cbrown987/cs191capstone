@@ -8,6 +8,7 @@ from api.endpoints import TheMealDB, TheCocktailDB
 from api.endpoints.AI.AI_base import AIBase
 from api.util.conversions import convert_to_recipe, convert_to_ingredient, convert_to_search_results, \
     combine_search_results, Menu
+from api.util.filtering import ContentFilter
 
 _API_IDS = {
         "M": TheMealDB,
@@ -27,7 +28,11 @@ def handle_api_call(call_id: str, search_method: str = 'search_by_id'):
     try:
         db_type, item_id = call_id.split('+')
         db_class = _API_IDS[db_type]
-        return getattr(db_class(), search_method)(item_id)
+        if search_method is "search_by_name":
+            db_class = ContentFilter(db_class)
+        else:
+            db_class = db_class()
+        return getattr(db_class, search_method)(item_id)
     except (ValueError, KeyError) as e:
         raise ValueError(f"Invalid API call format: {call_id}") from e
 
