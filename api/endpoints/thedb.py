@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 
-
 from api.endpoints.base import BaseDB
 
 class BaseTheDB(BaseDB):
@@ -82,12 +81,12 @@ class TheMealDB(BaseTheDB):
 
     def get_n_random(self, n):
         """
-        Because we do not have a premium API we can mock it here. This function is not sutible for scale.
+        Because we do not have a premium API we can mock it here. This function is not stable for scale.
         """
-        # This is hacky and not very nice. But we need 10 and we don't want duplicates
+        # This is hacky and not very nice. But we need n and we don't want duplicates
         _recipes = []
         seen_ids = set()
-        for _ in range(10):
+        for _ in range(n):
             response = self.get_one_random()
             if response and "meals" in response and response["meals"]:
                 recipe_id = response["meals"][0]["idMeal"]
@@ -221,10 +220,10 @@ class TheCocktailDB(BaseTheDB):
         """
         Because we do not have a premium API we can mock it here. This function is not sutible for scale.
         """
-        # This is hacky and not very nice. But we need around 10, and we don't want duplicates
+        # This is hacky and not very nice. But we need around n, and we don't want duplicates
         _recipes = []
         seen_ids = set()
-        for _ in range(10):
+        for _ in range(n):
             response = self.get_one_random()
             if response and "drinks" in response and response["drinks"]:
                 recipe_id = response["drinks"][0]["idDrink"]

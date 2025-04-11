@@ -1,58 +1,71 @@
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-
-from api.util.conversions import Recipe, Ingredient, ImageURL, SearchResult, AIResponseText, convert_to_recipe
 
 from api.endpoints import TheMealDB, TheCocktailDB
 from api.endpoints.AI.AI_base import AIBase
 from api.endpoints.photos.pixabay import Pixabay
-from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls
+from api.util.conversions import Recipe, ImageURL, AIResponseText, convert_to_recipe, \
+    convert_to_search_results, combine_search_results, Ingredient, SearchResult, Menu
+from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls, handle_menu_calls
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
+    # These are unsafe but what the hell
     allow_origins=["*"],  # Allows all origins
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
 
+router = APIRouter(prefix="/api")
+
 async def get_themealdb() -> TheMealDB:
-   return TheMealDB()
+    return TheMealDB()
+
 
 async def get_thecocktaildb() -> TheCocktailDB:
-   return TheCocktailDB()
+    return TheCocktailDB()
+
 
 async def get_pixabay() -> Pixabay:
-   return Pixabay()
+    return Pixabay()
+
 
 async def get_aibase() -> AIBase:
-   return AIBase()
+    return AIBase()
+
 
 # ************
 # ** Routes **
 # ************
-@app.get("/api/food/recipes", response_model=List[Recipe])
+@app.get("/food/recipes", response_model=List[Recipe])
 async def food_recipes():
+    """Get a list of random food recipes."""
     themealdb = await get_themealdb()
-    meals = themealdb.get_n_random(4)
+    meals = themealdb.get_n_random(10)
     recipes = [convert_to_recipe(meal) for meal in meals]
     return recipes
 
 
+@app.get("/api/menu/", response_model=Menu)
+async def get_menu():
+    """Get menu"""
+    return await handle_menu_calls()
 
-@app.get("/api/food/recipes/{call_id}", response_model=Recipe)
-@app.get("/api/drink/recipes/{call_id}", response_model=Recipe)
+
+@app.get("/food/recipes/{call_id}", response_model=Recipe)
+@app.get("/drink/recipes/{call_id}", response_model=Recipe)
 async def recipe_from_id(call_id: str):
     """Handles API calls for recipe retrieval based on ID"""
     recipe = handle_id_calls(call_id)
     return recipe
 
 
-@app.get("/api/drink/recipes", response_model=List[Recipe])
+@app.get("/drink/recipes", response_model=List[Recipe])
 async def get_random_drink_recipes():
     """Get a list of random drink recipes."""
     thecocktaildb = await get_thecocktaildb()
@@ -61,8 +74,7 @@ async def get_random_drink_recipes():
     return recipes
 
 
-
-@app.get("/api/ingredients/{call_id}", response_model=Ingredient)
+@app.get("/ingredients/{call_id}", response_model=Ingredient)
 async def ingredients_by_id(call_id: str):
     """Get ingredient by id"""
     print("call id: " + call_id)
@@ -70,7 +82,7 @@ async def ingredients_by_id(call_id: str):
     return ingredient
 
 
-@app.get("/api/image", response_model=ImageURL)
+@app.get("/image", response_model=ImageURL)
 async def get_image(query: str):
     """Get image by query"""
     pixabay = await get_pixabay()
@@ -80,15 +92,25 @@ async def get_image(query: str):
     return ImageURL(url=image_url)
 
 
-
-@app.get("/api/search", response_model=SearchResult)
+@app.get("/search", response_model=SearchResult)
 async def get_search_results(query: str):
     """Get search results by query"""
     search_results = handle_name_search_calls(query)
     return search_results
 
 
-@app.get("/api/ai/description/{query}", response_model=AIResponseText)
+@app.get("/search/ingredients", response_model=SearchResult)
+async def get_search_ingredients(query: str):
+    """Get search ingredients by query"""
+    mealdb = await get_themealdb()
+    search_results = mealdb.search_for_recipe_by_ingredients(query)
+    r = []
+    for x in search_results:
+        r.append(convert_to_search_results(x))
+    return combine_search_results(*r)
+
+
+@app.get("/ai/description/{query}", response_model=AIResponseText)
 async def get_ai_description(query: str):
     """Get AI description by query"""
     aibase = await get_aibase()
@@ -96,12 +118,13 @@ async def get_ai_description(query: str):
     return AIResponseText(text=description)
 
 
-@app.get("/api/ai/substitutions/{query}", response_model=AIResponseText)
+@app.get("/ai/substitutions/{query}", response_model=AIResponseText)
 async def get_ai_substitution(query: str):
     """Get AI substitution by query"""
     aibase = await get_aibase()
     substitution = aibase.query_for_substitutions(query)
     return AIResponseText(text=substitution)
+
 
 if __name__ == "__main__":
     import uvicorn

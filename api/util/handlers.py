@@ -1,6 +1,13 @@
+import ast
+import asyncio
+import logging
+from functools import lru_cache
+
+from api.const import MENU_QUERY_ITEMS
 from api.endpoints import TheMealDB, TheCocktailDB
+from api.endpoints.AI.AI_base import AIBase
 from api.util.conversions import convert_to_recipe, convert_to_ingredient, convert_to_search_results, \
-    combine_search_results
+    combine_search_results, Menu
 
 _API_IDS = {
         "M": TheMealDB,
@@ -53,3 +60,60 @@ def handle_name_search_calls(query: str):
         # if ingredient_call_return:
         #     response.append(ingredient_call_return)
     return combine_search_results(*response)
+
+
+async def handle_menu_calls(mealdb=None, cocktaildb=None, ai=None) -> Menu:
+    """
+    Handles menu calls and returns a structured Menu response.
+
+    Args:
+        mealdb: Meal database instance, defaults to TheMealDB()
+        cocktaildb: Cocktail database instance, defaults to TheCocktailDB()
+        ai: AI instance, defaults to AIBase()
+
+    Returns:
+        Menu: Structured menu with food and drink items
+    """
+    mealdb = mealdb or TheMealDB()
+    cocktaildb = cocktaildb or TheCocktailDB()
+    ai = ai or AIBase()
+
+    meals_task = asyncio.create_task(get_meals(mealdb, MENU_QUERY_ITEMS))
+    cocktails_task = asyncio.create_task(get_cocktails(cocktaildb, MENU_QUERY_ITEMS))
+
+    # Wait for both tasks to complete
+    meals, cocktails = await asyncio.gather(meals_task, cocktails_task)
+
+    built_menu = ai.build_menu(
+        meals=meals,
+        cocktails=cocktails,
+        preferences=None  # TODO: update this with user preferences if the user is logged in.
+    )
+
+    try:
+        menu_dict = ast.literal_eval(built_menu)  # TODO: This is unsafe!!!! :O but JSON freaks the hell out
+    except (SyntaxError, ValueError) as e:
+        logging.error(f"Error parsing response: {e}")
+        menu_dict = {"food": [], "drinks": []}
+
+    try:
+        return Menu(food=menu_dict["food"], drinks=menu_dict["drinks"])
+    except Exception as e:
+        logging.error(f"Error creating Menu model: {e}")
+        # Return an empty menu rather than failing
+        return Menu(food=[], drinks=[])
+
+
+@lru_cache(maxsize=32)
+async def get_meals(mealdb, count):
+    return await asyncio.to_thread(mealdb.get_n_random, count)
+
+
+@lru_cache(maxsize=32)
+async def get_cocktails(cocktaildb, count):
+    return await asyncio.to_thread(cocktaildb.get_n_random, count)
+
+
+
+
+
