@@ -21,7 +21,6 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-router = APIRouter(prefix="/api")
 
 async def get_themealdb() -> TheMealDB:
     return TheMealDB()
@@ -42,7 +41,7 @@ async def get_aibase() -> AIBase:
 # ************
 # ** Routes **
 # ************
-@app.get("/food/recipes", response_model=List[Recipe])
+@app.get("api/food/recipes", response_model=List[Recipe])
 async def food_recipes():
     """Get a list of random food recipes."""
     themealdb = await get_themealdb()
@@ -57,15 +56,15 @@ async def get_menu():
     return await handle_menu_calls()
 
 
-@app.get("/food/recipes/{call_id}", response_model=Recipe)
-@app.get("/drink/recipes/{call_id}", response_model=Recipe)
+@app.get("api/food/recipes/{call_id}", response_model=Recipe)
+@app.get("api/drink/recipes/{call_id}", response_model=Recipe)
 async def recipe_from_id(call_id: str):
     """Handles API calls for recipe retrieval based on ID"""
     recipe = handle_id_calls(call_id)
     return recipe
 
 
-@app.get("/drink/recipes", response_model=List[Recipe])
+@app.get("api/drink/recipes", response_model=List[Recipe])
 async def get_random_drink_recipes():
     """Get a list of random drink recipes."""
     thecocktaildb = await get_thecocktaildb()
@@ -74,7 +73,7 @@ async def get_random_drink_recipes():
     return recipes
 
 
-@app.get("/ingredients/{call_id}", response_model=Ingredient)
+@app.get("api/ingredients/{call_id}", response_model=Ingredient)
 async def ingredients_by_id(call_id: str):
     """Get ingredient by id"""
     print("call id: " + call_id)
@@ -82,7 +81,7 @@ async def ingredients_by_id(call_id: str):
     return ingredient
 
 
-@app.get("/image", response_model=ImageURL)
+@app.get("api/image", response_model=ImageURL)
 async def get_image(query: str):
     """Get image by query"""
     pixabay = await get_pixabay()
@@ -92,14 +91,14 @@ async def get_image(query: str):
     return ImageURL(url=image_url)
 
 
-@app.get("/search", response_model=SearchResult)
+@app.get("api/search", response_model=SearchResult)
 async def get_search_results(query: str):
     """Get search results by query"""
     search_results = handle_name_search_calls(query)
     return search_results
 
 
-@app.get("/search/ingredients", response_model=SearchResult)
+@app.get("api/search/ingredients", response_model=SearchResult)
 async def get_search_ingredients(query: str):
     """Get search ingredients by query"""
     mealdb = await get_themealdb()
@@ -110,7 +109,7 @@ async def get_search_ingredients(query: str):
     return combine_search_results(*r)
 
 
-@app.get("/ai/description/{query}", response_model=AIResponseText)
+@app.get("api/ai/description/{query}", response_model=AIResponseText)
 async def get_ai_description(query: str):
     """Get AI description by query"""
     aibase = await get_aibase()
@@ -118,7 +117,7 @@ async def get_ai_description(query: str):
     return AIResponseText(text=description)
 
 
-@app.get("/ai/substitutions/{query}", response_model=AIResponseText)
+@app.get("api/ai/substitutions/{query}", response_model=AIResponseText)
 async def get_ai_substitution(query: str):
     """Get AI substitution by query"""
     aibase = await get_aibase()
