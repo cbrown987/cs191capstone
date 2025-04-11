@@ -13,19 +13,7 @@
     "/food/recipes": {
       "get": {
         "summary": "Get random food recipes",
-        "description": "Retrieves 4 random food recipes",
-        "responses": {
-          "200": {
-            "description": "An array of food recipes",
-            "schema": {
-              "$ref": "#/definitions/RecipeArray"
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Get random food recipes",
-        "description": "Retrieves 4 random food recipes",
+        "description": "Retrieves 10 random food recipes",
         "responses": {
           "200": {
             "description": "An array of food recipes",
@@ -36,29 +24,22 @@
         }
       }
     },
-    "/food/recipes/{call_id}": {
+    "/menu/": {
       "get": {
-        "summary": "Get food recipe by ID",
-        "description": "Retrieves a food recipe based on the provided ID",
-        "parameters": [
-          {
-            "name": "call_id",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "ID of the recipe to retrieve"
-          }
-        ],
+        "summary": "Get menu",
+        "description": "Retrieves the menu",
         "responses": {
           "200": {
-            "description": "A single recipe",
+            "description": "Menu response",
             "schema": {
-              "$ref": "#/definitions/Recipe"
+              "type": "object"
             }
           }
         }
-      },
-      "post": {
+      }
+    },
+    "/food/recipes/{call_id}": {
+      "get": {
         "summary": "Get food recipe by ID",
         "description": "Retrieves a food recipe based on the provided ID",
         "parameters": [
@@ -92,43 +73,10 @@
             }
           }
         }
-      },
-      "post": {
-        "summary": "Get random drink recipes",
-        "description": "Retrieves 4 random drink recipes",
-        "responses": {
-          "200": {
-            "description": "An array of drink recipes",
-            "schema": {
-              "$ref": "#/definitions/RecipeArray"
-            }
-          }
-        }
       }
     },
     "/drink/recipes/{call_id}": {
       "get": {
-        "summary": "Get drink recipe by ID",
-        "description": "Retrieves a drink recipe based on the provided ID",
-        "parameters": [
-          {
-            "name": "call_id",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "ID of the recipe to retrieve"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A single recipe",
-            "schema": {
-              "$ref": "#/definitions/Recipe"
-            }
-          }
-        }
-      },
-      "post": {
         "summary": "Get drink recipe by ID",
         "description": "Retrieves a drink recipe based on the provided ID",
         "parameters": [
@@ -153,7 +101,7 @@
     "/ingredients/{call_id}": {
       "get": {
         "summary": "Get ingredient by ID",
-        "description": "Retrieves an ingredient based on the provided ID",
+        "description": "Retrieves ingredient information based on the provided ID",
         "parameters": [
           {
             "name": "call_id",
@@ -165,28 +113,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A single ingredient",
-            "schema": {
-              "$ref": "#/definitions/Ingredient"
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Get ingredient by ID",
-        "description": "Retrieves an ingredient based on the provided ID",
-        "parameters": [
-          {
-            "name": "call_id",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "ID of the ingredient to retrieve"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A single ingredient",
+            "description": "Ingredient information",
             "schema": {
               "$ref": "#/definitions/Ingredient"
             }
@@ -194,45 +121,70 @@
         }
       }
     },
-    "/image/{query}": {
+    "/image": {
       "get": {
         "summary": "Get image by query",
         "description": "Retrieves an image URL based on the provided query",
         "parameters": [
           {
             "name": "query",
-            "in": "path",
+            "in": "query",
             "required": true,
             "type": "string",
-            "description": "Query to search for an image"
+            "description": "Search query for the image"
           }
         ],
         "responses": {
           "200": {
-            "description": "An image URL",
+            "description": "Image URL",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/ImageURL"
             }
           }
         }
-      },
-      "post": {
-        "summary": "Get image by query",
-        "description": "Retrieves an image URL based on the provided query",
+      }
+    },
+    "/search": {
+      "get": {
+        "summary": "Get search results by query",
+        "description": "Retrieves search results based on the provided query",
         "parameters": [
           {
             "name": "query",
-            "in": "path",
+            "in": "query",
             "required": true,
             "type": "string",
-            "description": "Query to search for an image"
+            "description": "Search query"
           }
         ],
         "responses": {
           "200": {
-            "description": "An image URL",
+            "description": "Search results",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/SearchResult"
+            }
+          }
+        }
+      }
+    },
+    "/search/ingredients": {
+      "get": {
+        "summary": "Get search ingredients by query",
+        "description": "Retrieves recipes by searching for ingredients",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Ingredient search query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "schema": {
+              "$ref": "#/definitions/SearchResult"
             }
           }
         }
@@ -240,7 +192,7 @@
     },
     "/ai/description/{query}": {
       "get": {
-        "summary": "Get AI-generated description",
+        "summary": "Get AI description by query",
         "description": "Retrieves an AI-generated description based on the provided query",
         "parameters": [
           {
@@ -248,148 +200,81 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "Query to generate description for"
+            "description": "Query for AI description"
           }
         ],
         "responses": {
           "200": {
-            "description": "An AI-generated description",
+            "description": "AI-generated text",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/AIResponseText"
             }
-          },
-          "403": {
-            "description": "Forbidden - Origin not allowed"
-          }
-        }
-      },
-      "post": {
-        "summary": "Get AI-generated description",
-        "description": "Retrieves an AI-generated description based on the provided query",
-        "parameters": [
-          {
-            "name": "query",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "Query to generate description for"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "An AI-generated description",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden - Origin not allowed"
           }
         }
       }
     },
     "/ai/substitutions/{query}": {
       "get": {
-        "summary": "Get AI-generated substitutions",
-        "description": "Retrieves AI-generated substitutions based on the provided query",
+        "summary": "Get AI substitution suggestions by query",
+        "description": "Retrieves AI-generated ingredient substitution suggestions",
         "parameters": [
           {
             "name": "query",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "Query to generate substitutions for"
+            "description": "Query for ingredient substitutions"
           }
         ],
         "responses": {
           "200": {
             "description": "AI-generated substitution suggestions",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/AIResponseText"
             }
-          },
-          "403": {
-            "description": "Forbidden - Origin not allowed"
-          }
-        }
-      },
-      "post": {
-        "summary": "Get AI-generated substitutions",
-        "description": "Retrieves AI-generated substitutions based on the provided query",
-        "parameters": [
-          {
-            "name": "query",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "Query to generate substitutions for"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "AI-generated substitution suggestions",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden - Origin not allowed"
           }
         }
       }
     }
   },
   "definitions": {
-    "Ingredient": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": ["integer", "null"],
-          "description": "Unique identifier for the ingredient"
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the ingredient"
-        },
-        "measurement": {
-          "type": ["string", "null"],
-          "description": "Measurement information for the ingredient"
-        },
-        "description": {
-          "type": ["string", "null"],
-          "description": "Description of the ingredient"
-        }
-      }
-    },
     "Recipe": {
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer",
+          "type": "string",
           "description": "Unique identifier for the recipe"
         },
-        "title": {
+        "name": {
           "type": "string",
-          "description": "Title of the recipe"
-        },
-        "description": {
-          "type": ["string", "null"],
-          "description": "Description of the recipe"
+          "description": "Name of the recipe"
         },
         "instructions": {
           "type": "string",
-          "description": "Instructions for preparing the recipe"
-        },
-        "imageURL": {
-          "type": "string",
-          "description": "URL to an image of the recipe"
+          "description": "Cooking instructions"
         },
         "ingredients": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Ingredient"
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "string"
+              }
+            }
           },
-          "description": "List of ingredients used in the recipe"
+          "description": "List of ingredients with amounts"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL to the recipe image"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of recipe (food or drink)"
         }
       }
     },
@@ -397,6 +282,86 @@
       "type": "array",
       "items": {
         "$ref": "#/definitions/Recipe"
+      }
+    },
+    "Ingredient": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Ingredient ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Ingredient name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Ingredient description"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL to the ingredient image"
+        }
+      }
+    },
+    "ImageURL": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "URL to the requested image"
+        }
+      }
+    },
+    "SearchResult": {
+      "type": "object",
+      "properties": {
+        "food": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "imageUrl": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Food recipe search results"
+        },
+        "drink": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "imageUrl": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Drink recipe search results"
+        }
+      }
+    },
+    "AIResponseText": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "AI-generated text response"
+        }
       }
     }
   }

@@ -1,25 +1,19 @@
 import {MenuLink} from "@/app/components/menu/menuLink";
 import {getApi} from "@/app/lib/api";
 
-const getFoodItems = getApi("/api/food/recipes", 86400); // Cache for 24 hours
-const getDrinkItems = getApi("/api/drink/recipes", 86400); // Cache for 24 hours
+const getMenuItems = getApi("/api/menu/", 86400); // Cache for 24 hours
 
 export const Menu = async () => {
-    const [foodItemsResult, drinkItemsResult] = await Promise.allSettled([
-        getFoodItems,
-        getDrinkItems
+    const [menuItemsResults] = await Promise.allSettled([
+        getMenuItems,
     ]);
 
-    const food_items = foodItemsResult.status === 'fulfilled' ? (foodItemsResult.value || []) : [];
-    const drink_items = drinkItemsResult.status === 'fulfilled' ? (drinkItemsResult.value || []) : [];
-
-    if (foodItemsResult.status === 'rejected') {
-        console.error("Failed to fetch food items:", foodItemsResult.reason);
+    const resolved_menu_items = menuItemsResults.status === 'fulfilled' ? (menuItemsResults.value || []) : [];
+    if (menuItemsResults.status === 'rejected') {
+        console.error("Failed to fetch food items:", menuItemsResults.reason);
     }
-
-    if (drinkItemsResult.status === 'rejected') {
-        console.error("Failed to fetch drink items:", drinkItemsResult.reason);
-    }
+    let food_items = resolved_menu_items['food']
+    let drink_items = resolved_menu_items['drinks']
 
     const hasFoodItems = Array.isArray(food_items) && food_items.length > 0;
     const hasDrinkItems = Array.isArray(drink_items) && drink_items.length > 0;
@@ -47,9 +41,9 @@ export const Menu = async () => {
                                 food_items.slice(0, 8).map((item, index) => (
                                     <MenuLink
                                         key={item['id'] || index}
-                                        linkText={item['title'] || 'Unnamed Item'}
+                                        linkText={item['name'] || 'Unnamed Item'}
                                         link={item['id'] || '#'}
-                                        description={"food"}
+                                        description={item['description'] || 'food'}
                                     />
                                 ))
                             ) : (<li className="text-gray-500 italic text-center py-2">No food available</li>)}
@@ -68,9 +62,9 @@ export const Menu = async () => {
                                 drink_items.slice(0, 8).map((item, index) => (
                                     <MenuLink
                                         key={item['id'] || index}
-                                        linkText={item['title'] || 'Unnamed Item'}
+                                        linkText={item['name'] || 'Unnamed Item'}
                                         link={item['id'] || '#'}
-                                        description={"drinks"}
+                                        description={item['description'] || 'food'}
                                     />
                                 ))
                             ) : (
@@ -83,7 +77,6 @@ export const Menu = async () => {
 
             <footer className="mt-6 text-center">
                 <div className="w-12 h-px bg-black mx-auto mb-2"></div>
-                <p className="text-xs tracking-widest uppercase font-light">Thank You For Your Patronage</p>
             </footer>
         </div>
     );

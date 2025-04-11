@@ -1,6 +1,7 @@
 import openai
 from api.config import Config
-from api.endpoints.AI.system_prompts import DESCRIPTION_SYSTEM_PROMPT, SUBSTITUTION_SYSTEM_PROMPT
+from api.endpoints.AI.system_prompts import DESCRIPTION_SYSTEM_PROMPT, SUBSTITUTION_SYSTEM_PROMPT, \
+    MENU_BUILDER_SYSTEM_PROMPT
 
 
 class AIBase:
@@ -37,3 +38,15 @@ class AIBase:
             system_query=SUBSTITUTION_SYSTEM_PROMPT,
             user_query=query,
         )
+
+    def build_menu(self, meals, cocktails, preferences=None):
+        base_query = f"MEAL LIST: {str(meals)} DRINK LIST: {str(cocktails)}"
+        if preferences:
+            base_query += f" USER PREFERENCES: {preferences}"
+
+        return self._query(
+            system_query=MENU_BUILDER_SYSTEM_PROMPT,
+            user_query=base_query
+        )
+
+
