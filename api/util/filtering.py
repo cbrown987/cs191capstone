@@ -4,7 +4,10 @@ from better_profanity import profanity
 class ContentFilter(BaseDB):
     def __init__(self, db_instance, filter_rules=None):
         profanity.load_censor_words()
-        self.db_instance = db_instance()
+        if callable(db_instance):
+            self.db_instance = db_instance()
+        else:
+            self.db_instance = db_instance
         super().__init__(self.db_instance.endpoint)
         self.filter_rules = filter_rules or {}
 
@@ -15,18 +18,16 @@ class ContentFilter(BaseDB):
     def get_one_random(self):
         for _ in range(10):
             result = self.db_instance.get_one_random()
-            if result and self._passes_filter(result):
-                return result
+            return self._censor_result(result)
         return None
 
     def get_n_random(self, n):
         results = []
         raw_results = self.db_instance.get_n_random(n * 2)
         for result in raw_results:
-            if self._passes_filter(result):
-                results.append(result)
-                if len(results) == n:
-                    break
+            results.append(self._censor_result(result))
+            if len(results) == n:
+                break
         return results
 
     def _apply_filters(self, results):

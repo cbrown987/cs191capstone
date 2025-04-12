@@ -3,6 +3,8 @@ import {IngredientComponent} from "@/app/components/IngredentComponent/Ingredien
 export interface CardProps {
     imageSrc: string;
     title: string;
+    type: string;
+    id: string;
 }
 
 export interface MenuLinkProps {
