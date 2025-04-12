@@ -11,7 +11,6 @@ export default function RecipesPage() {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const recipesPerPage = 6;
 
@@ -27,7 +26,6 @@ export default function RecipesPage() {
         setLoading(true);
       }
 
-      const currentPage = isLoadMore ? page : 1;
       const food_recipes = await getApi(`api/food/recipes?limit=${recipesPerPage}`);
       const drink_recipes = await getApi(`api/drink/recipes?limit=${recipesPerPage}`);
 
@@ -42,20 +40,15 @@ export default function RecipesPage() {
         }))
       ];
 
-      // If we get fewer recipes than the limit or none, we've reached the end
       if (newRecipes.length === 0) {
         setHasMore(false);
       }
 
       if (isLoadMore) {
-        // Append new recipes to existing ones
         setRecipes(prevRecipes => [...prevRecipes, ...newRecipes]);
-        setPage(currentPage + 1);
         setLoadingMore(false);
       } else {
-        // Replace existing recipes (first load)
         setRecipes(newRecipes);
-        setPage(2); // Next page will be 2
         setLoading(false);
       }
     } catch (error) {
@@ -99,7 +92,6 @@ export default function RecipesPage() {
             ))}
           </div>
 
-          {/* Load More button - only show if there are potentially more recipes */}
           {hasMore && (
             <div className="mt-8 flex justify-center">
               <button
