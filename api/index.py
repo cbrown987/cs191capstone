@@ -43,10 +43,10 @@ async def get_aibase() -> AIBase:
 # ** Routes **
 # ************
 @app.get("/api/food/recipes", response_model=List[Recipe])
-async def food_recipes():
+async def food_recipes(limit: int = 10):
     """Get a list of random food recipes."""
     themealdb = await get_themealdb()
-    meals = themealdb.get_n_random(10)
+    meals = themealdb.get_n_random(limit)
     recipes = [convert_to_recipe(meal) for meal in meals]
     return recipes
 
@@ -66,11 +66,11 @@ async def recipe_from_id(call_id: str):
 
 
 @app.get("/api/drink/recipes", response_model=List[Recipe])
-async def get_random_drink_recipes():
+async def get_random_drink_recipes(limit: int = 10):
     """Get a list of random drink recipes."""
     thecocktaildb = await get_thecocktaildb()
     content_filter = ContentFilter(thecocktaildb)
-    drinks = content_filter.get_n_random(10)
+    drinks = content_filter.get_n_random(limit)
     recipes = [convert_to_recipe(drink) for drink in drinks]
     return recipes
 

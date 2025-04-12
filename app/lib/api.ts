@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 // @ts-ignore
 import { Pool } from 'pg';
 
-// Hardcoded RDS credentials for now
 const pool = new Pool({
   user: process.env.AWS_USER,
   host: String(process.env.AWS_HOST),

@@ -40,8 +40,7 @@ export default async ({params}: { params: Promise<{ query: string }> }) => {
                   >
                     <Card
                       imageSrc={'/images/default-ingredient.jpg'}
-                      title={item.ingredient.name}
-                    />
+                      title={item.ingredient.name} type={''} id={''}                    />
                   </a>
                 ) : item.recipe ? (
                   <a
@@ -51,8 +50,7 @@ export default async ({params}: { params: Promise<{ query: string }> }) => {
                   >
                     <Card
                       imageSrc={item.recipe.imageURL || '/images/default-recipe.jpg'}
-                      title={item.recipe.title}
-                    />
+                      title={item.recipe.title} type={''} id={''}                    />
                   </a>
                 ) : null
           )}
