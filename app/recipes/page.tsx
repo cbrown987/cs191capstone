@@ -5,7 +5,6 @@ import Card from '../components/card';
 
 /**
  * Recipes page that displays both food and drink recipes
- * with a Load More button that fetches additional recipes on demand
  */
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState<any[]>([]);
