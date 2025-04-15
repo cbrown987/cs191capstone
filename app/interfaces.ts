@@ -34,3 +34,8 @@ export interface IngredientComponentProps {
 export interface SearchBarProps {
   initialQuery?: string;
 }
+
+export interface ChatbotProps {
+    height?: string;
+    context?: string;
+}

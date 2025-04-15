@@ -84,8 +84,12 @@ export async function getAISubstitutions(query: string) {
   return await getApi(`/api/ai/substitutions/${query}`)
 }
 
-export async function getAIChat(query: string) {
+export async function getAIChat(query: string, context?: string) {
   const sanitizedQuery = encodeURIComponent(query);
+  if (context) {
+    const sanitizedContext = encodeURIComponent(context);
+    return await getApi(`/api/ai/chat?message=${sanitizedQuery}&context=${sanitizedContext}`);
+  }
   return await getApi(`/api/ai/chat?message=${sanitizedQuery}`);
 }
 

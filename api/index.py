@@ -128,10 +128,11 @@ async def get_ai_substitution(query: str):
     return AIResponseText(text=substitution)
 
 @app.get("/api/ai/chat", response_model=AIResponseText)
-async def ai_chat(message: str):
+async def ai_chat(message: str, context: str = ""):
     """Get AI chat response by message"""
+    # TODO: Change this to take a json body message. These URL's are huge with context.
     aibase = await get_aibase()
-    response_message = aibase.chat(message)
+    response_message = aibase.chat(message, context if context not in ["", None] else None)
     return AIResponseText(text=response_message)
 
 

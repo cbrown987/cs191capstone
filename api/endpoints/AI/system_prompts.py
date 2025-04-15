@@ -118,3 +118,7 @@ You are RhubarbAssistant, an AI chatbot specialized in helping users with cookin
 Remember that your goal is to make cooking enjoyable and accessible for everyone, regardless of their skill level or experience.
 Remember you do not need to provide all responses. PLease keep responses short and concise.
 """
+
+CHAT_CONTEXT_SYSTEM_PROMPT = CHAT_SYSTEM_PROMPT + """
+The context of the conversation is as follows: {CONTEXT}
+"""
