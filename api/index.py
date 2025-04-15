@@ -1,13 +1,14 @@
 from typing import List
 
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.endpoints import TheMealDB, TheCocktailDB
 from api.endpoints.AI.AI_base import AIBase
 from api.endpoints.photos.pixabay import Pixabay
-from api.util.conversions import Recipe, ImageURL, AIResponseText, convert_to_recipe, \
-    convert_to_search_results, combine_search_results, Ingredient, SearchResult, Menu
+from api.util.conversions import Recipe, convert_to_recipe, \
+    convert_to_search_results, combine_search_results, Ingredient, SearchResult
+from api.util.fastapi_types import Menu, ImageURL, AIResponseText
 from api.util.filtering import ContentFilter
 from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls, handle_menu_calls
 
@@ -126,7 +127,14 @@ async def get_ai_substitution(query: str):
     substitution = aibase.query_for_substitutions(query)
     return AIResponseText(text=substitution)
 
+@app.get("/api/ai/chat", response_model=AIResponseText)
+async def ai_chat(message: str):
+    """Get AI chat response by message"""
+    aibase = await get_aibase()
+    response_message = aibase.chat(message)
+    return AIResponseText(text=response_message)
+
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5328)
+    uvicorn.run(app, host="127.0.0.1", port=5328)

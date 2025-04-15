@@ -1,53 +1,12 @@
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel
+import ast
+import logging
+import re
+from typing import List, Dict, Any
+
+from api.util.fastapi_types import Recipe, Ingredient, SearchResult, _SearchResult
 
 
-class _MenuItem(BaseModel):
-    name: str
-    id: str
-    category: str
-    description: str
-
-
-class Menu(BaseModel):
-    food: List[_MenuItem]
-    drinks: List[_MenuItem]
-
-
-class Ingredient(BaseModel):
-    id: int
-    name: str
-    measurement: str
-    description: str
-
-
-class Recipe(BaseModel):
-    id: str
-    title: str
-    description: str
-    instructions: str
-    imageURL: str
-    ingredients: List[Ingredient]
-
-
-class ImageURL(BaseModel):
-    url: str
-
-
-class _SearchResult(BaseModel):
-    database: str
-    recipe: Optional[Recipe] = None
-    ingredient: Optional[Ingredient] = None
-
-
-class SearchResult(BaseModel):
-    results: List[_SearchResult]
-
-class AIResponseText(BaseModel):
-    text: str
-
-
-def convert_to_recipe(item: Dict[str, Any]) -> Recipe:
+def convert_to_recipe(item: Dict[str, Any]) -> Recipe | None:
     """
     Converts a meal or drink dictionary to a Recipe object, automatically
     detecting the item type.
@@ -67,7 +26,8 @@ def convert_to_recipe(item: Dict[str, Any]) -> Recipe:
         key = 'drinks'
     else:
         raise ValueError("Could not determine item type (meal or drink).")
-
+    if item[key] is None:
+        return None
     item = item[key][0] if isinstance(item[key], list) else item[key]
     if item is None:
         return Recipe(
@@ -180,3 +140,24 @@ def combine_search_results(*search_results: SearchResult) -> SearchResult:
             all_results.extend(sr.results)
 
     return SearchResult(results=all_results)
+
+def get_valid_literals(text):
+    pattern = r'\[(.*?)\]'
+    match = re.search(pattern, text, re.DOTALL)
+
+    if match:
+        json_str = match.group(0)
+        str = re.sub(r',\s*}', '}', json_str)
+
+        start, end = match.span()
+        text_without_literal = text[:start] + text[end:]
+
+        try:
+            literal = ast.literal_eval(str)
+            return literal, text_without_literal.strip()
+        except:
+            logging.error("Could not parse literal")
+            return None, text_without_literal.strip()
+    else:
+        print("No JSON array found in the text")
+        return None, text

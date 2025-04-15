@@ -165,6 +165,11 @@ class TheMealDB(BaseTheDB):
         
         return meals
 
+    def search_for_recipe_by_ingredients(self, query):
+        pass
+
+
+
 class TheCocktailDB(BaseTheDB):
     """Client for TheCocktailDB API."""
 

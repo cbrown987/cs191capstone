@@ -1,5 +1,3 @@
-import { NextRequest, NextResponse } from 'next/server';
-// import { Client } from 'pg';
 // @ts-ignore
 import { Pool } from 'pg';
 
@@ -27,7 +25,6 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5328";
   const fullUrl = isCompleteUrl ? url : `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
 
-  // TODO: make cache enabled again
   if (revalidateSeconds !== undefined) {
     fetchOptions.next = { revalidate: revalidateSeconds };
   }
@@ -40,10 +37,10 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
     console.log(`Fetched ${fullUrl}}`);
     let r_json = await response.json();
     return await r_json;
-  } catch (error) {
-    console.error(`Error fetching ${fullUrl}:`, error);
-    return { error: true, message: "Failed to fetch data" };
-  }
+   } catch (error) {
+     console.error(`Error fetching ${fullUrl}:`, error);
+     throw new Error(`Error fetching ${error}:`);
+    }
 }
 
 /**
@@ -86,6 +83,12 @@ export async function getAIDescription(query: string) {
 export async function getAISubstitutions(query: string) {
   return await getApi(`/api/ai/substitutions/${query}`)
 }
+
+export async function getAIChat(query: string) {
+  const sanitizedQuery = encodeURIComponent(query);
+  return await getApi(`/api/ai/chat?message=${sanitizedQuery}`);
+}
+
 
 
 export async function handleRequest(body: any) {
