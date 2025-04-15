@@ -1,7 +1,9 @@
+import logging
+
 import openai
 from api.config import Config
 from api.endpoints.AI.system_prompts import DESCRIPTION_SYSTEM_PROMPT, SUBSTITUTION_SYSTEM_PROMPT, \
-    MENU_BUILDER_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT
+    MENU_BUILDER_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT, CHAT_CONTEXT_SYSTEM_PROMPT
 
 
 class AIBase:
@@ -49,9 +51,12 @@ class AIBase:
             user_query=base_query
         )
 
-    def chat(self, user_message):
+    def chat(self, user_message, context=None):
+        SYSTEM_PROMPT = CHAT_SYSTEM_PROMPT
+        if context:
+            SYSTEM_PROMPT = CHAT_CONTEXT_SYSTEM_PROMPT.format(CONTEXT=context)
         return self._query(
-            system_query=CHAT_SYSTEM_PROMPT,
+            system_query=SYSTEM_PROMPT,
             user_query=user_message,
         )
 

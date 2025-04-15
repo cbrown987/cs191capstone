@@ -1,10 +1,11 @@
 'use client';
 
-import React from "react";
+import React, {useState} from "react";
 import { RecipeComponentProps } from "@/app/interfaces";
 import SaveRecipeButton from "../SaveRecipeButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {ChatbotComponent} from "@/app/components/ChatbotComponent/ChatbotComponent";
 
 export const RecipeComponent: React.FC<RecipeComponentProps> = ({
   id,
@@ -17,6 +18,7 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
   const pathname = usePathname();
   const isFood = pathname.includes("/food/");
   const type = isFood ? "food" : "drink";
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   for (const key in ingredients) {
     ingredients[key].id =
@@ -24,6 +26,8 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
         ? `${ingredients[key].name}`
         : `${ingredients[key].name}`;
   }
+  const context = `This is a ${type} recipe. The name of the recipe is ${title} and the description is ${description}, 
+  the ingredients are ${ingredients.map((ingredient: any) => ingredient.name).join(', ')}, and the instructions are ${instructions}.`
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 bg-white min-h-screen flex flex-col">
@@ -87,6 +91,28 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
           </section>
         </div>
       </div>
+      <section className="mt-12 mb-8">
+        <button
+          onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+          className="w-full flex items-center justify-between text-xl font-serif tracking-wide uppercase mb-2 text-[#902425] hover:text-[#701e1f] transition-colors duration-300"
+        >
+          <span>Recipe Assistant</span>
+          <span className="text-2xl">
+            {isChatbotOpen ? '−' : '+'}
+          </span>
+        </button>
+
+        {isChatbotOpen && (
+          <div className="bg-gray-50 rounded-lg shadow-lg p-4 transition-all duration-300 ease-in-out">
+            <p className="text-gray-700 mb-4">
+              Have questions about this recipe? Ask our AI assistant for help with
+              ingredient substitutions, cooking techniques, or dietary modifications.
+            </p>
+            <ChatbotComponent
+              context={context}/>
+          </div>
+        )}
+      </section>
 
       <footer className="mt-6 text-center">
         <div className="w-12 h-px bg-black mx-auto mb-2"></div>
