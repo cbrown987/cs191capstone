@@ -11,6 +11,7 @@ export interface MenuLinkProps {
     linkText: string;
     link: string;
     description: string;
+    type: string;
 }
 
 export interface RecipeComponentProps {

@@ -1,8 +1,8 @@
 import {MenuLinkProps} from "@/app/interfaces";
 import Link from "next/link";
 
-export const MenuLink: React.FC<MenuLinkProps> = ({linkText, link, description}) => {
-    let n_link = "/recipes/" + description + "/" + link;
+export const MenuLink: React.FC<MenuLinkProps> = ({linkText, link, description, type}) => {
+    let n_link = "/recipes/" + type + "/" + link;
     return (
         <li className="border-b border-gray-200 last:border-b-0 pb-2">
             <Link
