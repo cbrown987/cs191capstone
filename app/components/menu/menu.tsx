@@ -44,6 +44,7 @@ export const Menu = async () => {
                                         linkText={item['name'] || 'Unnamed Item'}
                                         link={item['id'] || '#'}
                                         description={item['description'] || 'food'}
+                                        type={'food'}
                                     />
                                 ))
                             ) : (<li className="text-gray-500 italic text-center py-2">No food available</li>)}
@@ -65,6 +66,7 @@ export const Menu = async () => {
                                         linkText={item['name'] || 'Unnamed Item'}
                                         link={item['id'] || '#'}
                                         description={item['description'] || 'food'}
+                                        type={'drink'}
                                     />
                                 ))
                             ) : (
