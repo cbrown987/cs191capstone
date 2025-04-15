@@ -32,12 +32,16 @@ class ContentFilter(BaseDB):
 
     def _apply_filters(self, results):
         if isinstance(results, dict) and 'meals' in results:
+            if results['meals'] is None:
+                return results
             filtered_meals = []
             for meal in results['meals']:
                 filtered_meals.append(self._censor_result(meal))
             return {'meals': filtered_meals}
 
         elif isinstance(results, dict) and 'drinks' in results:
+            if results['drinks'] is None:
+                return results
             filtered_drinks = []
             for drink in results['drinks']:
                 filtered_drinks.append(self._censor_result(drink))

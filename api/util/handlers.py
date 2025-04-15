@@ -7,7 +7,8 @@ from api.const import MENU_QUERY_ITEMS
 from api.endpoints import TheMealDB, TheCocktailDB
 from api.endpoints.AI.AI_base import AIBase
 from api.util.conversions import convert_to_recipe, convert_to_ingredient, convert_to_search_results, \
-    combine_search_results, Menu
+    combine_search_results, get_valid_literals
+from api.util.fastapi_types import Menu
 from api.util.filtering import ContentFilter
 
 _API_IDS = {
@@ -117,8 +118,5 @@ async def get_meals(mealdb, count):
 @lru_cache(maxsize=32)
 async def get_cocktails(cocktaildb, count):
     return await asyncio.to_thread(cocktaildb.get_n_random, count)
-
-
-
 
 

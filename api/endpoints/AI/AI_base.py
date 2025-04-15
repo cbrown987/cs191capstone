@@ -1,7 +1,7 @@
 import openai
 from api.config import Config
 from api.endpoints.AI.system_prompts import DESCRIPTION_SYSTEM_PROMPT, SUBSTITUTION_SYSTEM_PROMPT, \
-    MENU_BUILDER_SYSTEM_PROMPT
+    MENU_BUILDER_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT
 
 
 class AIBase:
@@ -47,6 +47,12 @@ class AIBase:
         return self._query(
             system_query=MENU_BUILDER_SYSTEM_PROMPT,
             user_query=base_query
+        )
+
+    def chat(self, user_message):
+        return self._query(
+            system_query=CHAT_SYSTEM_PROMPT,
+            user_query=user_message,
         )
 
 

@@ -48,6 +48,12 @@ const TopNav: React.FC = () => {
               </Link>
               <div className="absolute left-0 right-0 h-0.5 bg-[#902425] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-center" />
             </li>
+            <li className="relative group">
+              <Link href="/chat" className="text-gray-800 hover:text-[#902425] font-cinzel transition duration-200">
+                Chat
+              </Link>
+              <div className="absolute left-0 right-0 h-0.5 bg-[#902425] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-center" />
+            </li>
           </ul>
         </div>
 
