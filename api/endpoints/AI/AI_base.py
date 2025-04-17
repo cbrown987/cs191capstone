@@ -1,5 +1,3 @@
-import logging
-
 import openai
 from api.config import Config
 from api.endpoints.AI.system_prompts import DESCRIPTION_SYSTEM_PROMPT, SUBSTITUTION_SYSTEM_PROMPT, \
