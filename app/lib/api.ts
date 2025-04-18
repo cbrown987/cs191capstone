@@ -1,4 +1,5 @@
 // @ts-ignore
+process.env.NODE_PG_FORCE_NATIVE = "0";
 import { Pool } from 'pg';
 
 const pool = new Pool({
