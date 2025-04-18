@@ -17,11 +17,24 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: api/Dockerfile
     image: 'cs191capstone-fastapi'
     restart: unless-stopped
     expose:
       - '8000'
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: 'cs191capstone-next'
+    restart: unless-stopped
+    expose:
+      - '3000'
     env_file:
       - .env
     networks:
