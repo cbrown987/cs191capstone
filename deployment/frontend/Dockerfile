@@ -2,13 +2,11 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml* ./
+RUN git clone https://github.com/cbrown987/cs191capstone.git .
 
 RUN npm install -g pnpm
 
 RUN pnpm install
-
-COPY . .
 
 RUN pnpm build
 
