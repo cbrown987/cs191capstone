@@ -130,8 +130,16 @@
         group: "{{ ansible_user }}"
         mode: '0600'
 
-    - name: Build and start application stack
-      shell: docker-compose up -d --build
+    - name: Build docker containers
+      shell: docker-compose build --no-cache
+      args:
+         chdir: "{{ app_dir }}"
+      become_user: "{{ ansible_user }}"
+      environment:
+        PATH: /usr/local/bin:{{ ansible_env.PATH }}
+
+    - name: Start application stack
+      shell: docker-compose up -d
       args:
         chdir: "{{ app_dir }}"
       become_user: "{{ ansible_user }}"
