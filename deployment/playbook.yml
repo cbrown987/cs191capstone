@@ -101,6 +101,7 @@
       stat:
         path: "{{ app_dir }}/nginx/ssl/fullchain.pem"
       register: ssl_cert
+
     - name: Generate self-signed certificate
       shell: |
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
@@ -130,16 +131,8 @@
         group: "{{ ansible_user }}"
         mode: '0600'
 
-    - name: Build docker containers
-      shell: docker-compose build --no-cache
-      args:
-         chdir: "{{ app_dir }}"
-      become_user: "{{ ansible_user }}"
-      environment:
-        PATH: /usr/local/bin:{{ ansible_env.PATH }}
-
-    - name: Start application stack
-      shell: docker-compose up -d
+    - name: Build and start application stack
+      shell: docker-compose up -d --build
       args:
         chdir: "{{ app_dir }}"
       become_user: "{{ ansible_user }}"
