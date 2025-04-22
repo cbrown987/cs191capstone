@@ -1,0 +1,174 @@
+---
+- name: Deploy application to EC2
+  hosts: ec2_instances
+  become: yes
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - git
+          - python3-pip
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add current user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+      when: ansible_user != "root"
+
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Create nginx directories
+      file:
+        path: "{{ app_dir }}/nginx/{{ item }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+      loop:
+        - conf
+        - ssl
+        - logs
+
+    - name: Copy docker-compose.yml template
+      template:
+        src: templates/docker-compose.yml.j2
+        dest: "{{ app_dir }}/docker-compose.yml"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    - name: Create directories for Dockerfiles
+      file:
+        path: "{{ app_dir }}/{{ item }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+      loop:
+        - api
+        - frontend
+
+    - name: Copy API Dockerfile
+      template:
+        src: templates/api.Dockerfile.j2
+        dest: "{{ app_dir }}/api/Dockerfile"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    - name: Copy Frontend Dockerfile
+      template:
+        src: templates/frontend.Dockerfile.j2
+        dest: "{{ app_dir }}/frontend/Dockerfile"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    - name: Copy Nginx configuration
+      template:
+        src: templates/nginx.conf.j2
+        dest: "{{ app_dir }}/nginx/conf/default.conf"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    - name: Check for SSL certificates
+      stat:
+        path: "{{ app_dir }}/nginx/ssl/fullchain.pem"
+      register: ssl_cert
+
+    - name: Generate self-signed certificate
+      shell: |
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout {{ app_dir }}/nginx/ssl/privkey.pem \
+        -out {{ app_dir }}/nginx/ssl/fullchain.pem \
+        -subj "/CN={{ domain_name }}"
+      args:
+        creates: "{{ app_dir }}/nginx/ssl/fullchain.pem"
+      when: not ssl_cert.stat.exists
+
+    - name: Set SSL certificates permissions
+      file:
+        path: "{{ app_dir }}/nginx/ssl/{{ item }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0600'
+      loop:
+        - privkey.pem
+        - fullchain.pem
+      when: not ssl_cert.stat.exists
+
+    - name: Create environment file
+      template:
+        src: templates/env.j2
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0600'
+
+    - name: Build and start application stack
+      shell: docker-compose up -d --build
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: "{{ ansible_user }}"
+      environment:
+        PATH: /usr/local/bin:{{ ansible_env.PATH }}
+
+    - name: Show application status
+      shell: docker-compose ps
+      args:
+        chdir: "{{ app_dir }}"
+      register: app_status
+      changed_when: false
+      become_user: "{{ ansible_user }}"
+
+    - name: Display application status
+      debug:
+        msg: "{{ app_status.stdout_lines }}"
+
+    - name: Wait for the application to be fully running
+      pause:
+        seconds: 10
+
+    - name: Check if website is accessible
+      uri:
+        url: "https://{{ domain_name }}"
+        validate_certs: no
+      register: website_check
+      ignore_errors: yes
+      delegate_to: localhost
+
+    - name: Display deployment result
+      debug:
+        msg: "Application deployed successfully! Access at https://{{ domain_name }}"
+      when: website_check is success
+
+    - name: Display deployment warning
+      debug:
+        msg: "Application deployed, but website check failed. You may need to configure DNS or wait for services to fully start."
+      when: website_check is failed

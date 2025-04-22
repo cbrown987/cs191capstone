@@ -1,45 +1,46 @@
 services:
-  nginx-proxy:
-    image: 'jc21/nginx-proxy-manager:latest'
+  nginx:
+    image: nginx:alpine
     restart: unless-stopped
     ports:
       - '80:80'
-      - '81:81'
       - '443:443'
     volumes:
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
+      - {{ app_dir }}/nginx/conf:/etc/nginx/conf.d
+      - {{ app_dir }}/nginx/ssl:/etc/nginx/ssl
+      - {{ app_dir }}/nginx/logs:/var/log/nginx
     networks:
-      - app-network
+      - {{ docker_network }}
     depends_on:
       - api
+      - frontend
 
   api:
     build:
       context: .
       dockerfile: api/Dockerfile
-    image: 'cs191capstone-fastapi'
+    image: '{{ app_name }}-fastapi'
     restart: unless-stopped
     expose:
-      - '8000'
+      - '{{ api_port }}'
     env_file:
       - .env
     networks:
-      - app-network
+      - {{ docker_network }}
 
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    image: 'cs191capstone-next'
+    image: '{{ app_name }}-next'
     restart: unless-stopped
     expose:
-      - '3000'
+      - '{{ frontend_port }}'
     env_file:
       - .env
     networks:
-      - app-network
+      - {{ docker_network }}
 
 networks:
-  app-network:
+  {{ docker_network }}:
     driver: bridge
