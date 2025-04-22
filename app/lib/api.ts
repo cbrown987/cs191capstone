@@ -23,7 +23,7 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
   const isCompleteUrl = url.startsWith('http://') || url.startsWith('https://');
 
   // If URL doesn't have the protocol, add the base URL
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5328";
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
   const fullUrl = isCompleteUrl ? url : `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
 
   if (revalidateSeconds !== undefined) {

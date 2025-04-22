@@ -2,7 +2,7 @@
 # Application settings
 app_name: cs191capstone
 app_dir: /opt/{{ app_name }}
-domain_name: https://www.rhubarb.fyi/
+domain_name: rhubarb
 git_repo: https://github.com/cbrown987/cs191capstone
 git_branch: main
 
