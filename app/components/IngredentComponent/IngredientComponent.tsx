@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import {IngredientComponentProps} from "@/app/interfaces";
 import {getAISubstitutions} from "@/app/lib/api";
 import {ChatbotComponent} from "@/app/components/ChatbotComponent/ChatbotComponent";
-
+import Papa from "papaparse"; // Import papaparse for CSV parsing
 
 
 export const IngredientComponent: React.FC<IngredientComponentProps> = ({
@@ -16,6 +16,7 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
     const [substitutes, setSubstitutes] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+    const [recipes, setRecipes] = useState<any[]>([]);  // State for holding recipe data
 
 
     const handleGetSubstitutes = async () => {
@@ -60,6 +61,28 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
           setLoading(false);
       }
   };
+
+    const handleSearchRecipes = async () => {
+      try {
+        const response = await fetch("/data/food.csv"); // Replace with actual path
+        const csvText = await response.text();
+        Papa.parse(csvText, {
+          header: true,
+          dynamicTyping: true,
+          complete: (result) => {
+            const filteredRecipes = result.data
+              .filter((row: any) =>
+                row.Ingredients && row.Ingredients.toLowerCase().includes(name.toLowerCase())
+              )
+              .map((row: any) => [row.ID, row["Meal Name"], row.Ingredients]); // ← List of lists
+            setRecipes(filteredRecipes);
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching recipes:", error);
+      }
+    };
+
     const context = `This is an ingredient. The name of the ingredient is  ${name} and the description is ${description}.`
 
   return (
@@ -119,6 +142,34 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
           </section>
         </div>
       </div>
+
+          {/* New Button for Recipe Search */}
+          <section className="mt-6">
+            <button
+              onClick={handleSearchRecipes}
+              className="bg-[#902425] hover:bg-[#701a1b] text-white font-bold py-2 px-4 rounded"
+            >
+              Click for more recipes with this ingredient
+            </button>
+
+            {recipes && recipes.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {recipes.map((recipe: any, index: number) => (
+                    <a
+                      href={`/recipes/${recipe.type}/${recipe.id}`}
+                      key={`recipe-${recipe.type}-${index}`}
+                      className="transform hover:scale-105 transition-transform duration-200"
+                    >
+                      <Card
+                        imageSrc={recipe.imageURL || '/images/default-recipe.jpg'}
+                        title={recipe.title}
+                        type={recipe.type}
+                        id={recipe.id}
+                      />
+                    </a>
+                  ))}
+                </div>
 
       <section className="mt-12 mb-8">
         <button
