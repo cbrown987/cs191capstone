@@ -1,5 +1,7 @@
 // @ts-ignore
 process.env.NODE_PG_FORCE_NATIVE = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 import { Pool } from 'pg';
 
 const pool = new Pool({
@@ -17,7 +19,11 @@ const pool = new Pool({
 
 
 export async function getApi(url: string, revalidateSeconds?: number): Promise<any> {
-  const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
+  const fetchOptions: RequestInit & { next?: { revalidate?: number }; agent?: any } = {
+    agent: new (require('https')).Agent({
+      rejectUnauthorized: false
+    })
+  };
 
   // Check if the URL is already complete (starts with http:// or https://)
   const isCompleteUrl = url.startsWith('http://') || url.startsWith('https://');
