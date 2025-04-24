@@ -20,48 +20,46 @@ const pool = new Pool({
 
 export async function getApi(url: string, revalidateSeconds?: number): Promise<any> {
   const fetchOptions: RequestInit & { next?: { revalidate?: number }; agent?: any } = {
+
     agent: new (require('https')).Agent({
-      rejectUnauthorized: false
+      rejectUnauthorized: false // Keep for flexibility, or remove if only calling relative paths
     })
   };
-
-  // Check if the URL is already complete (starts with http:// or https://)
-  const isCompleteUrl = url.startsWith('http://') || url.startsWith('https://');
-
-  // If URL doesn't have the protocol, add the base URL
-  const baseUrl = String(process.env.NEXT_PUBLIC_API_URL);
-  console.log("Base URL:", baseUrl);
-  const fullUrl = isCompleteUrl ? url : `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
 
   if (revalidateSeconds !== undefined) {
     fetchOptions.next = { revalidate: revalidateSeconds };
   }
+
   try {
-    const response = await fetch(fullUrl, fetchOptions);
+    const response = await fetch(url, fetchOptions);
     if (!response.ok) {
-      console.error(`Fetch error: ${response.status} ${response.statusText}`);
-      throw new Error(response.statusText);
+      console.error(`Fetch error for ${url}: ${response.status} ${response.statusText}`);
+      let errorBody = '';
+      try {
+        errorBody = await response.text();
+      } catch (e) { /* ignore */ }
+      throw new Error(`Fetch failed with status ${response.status} ${response.statusText}. Body: ${errorBody}`);
     }
-    console.log(`Fetched ${fullUrl}}`);
+    console.log(`Fetched ${url} with status ${response.status} ${response.statusText}`);
     let r_json = await response.json();
     console.log("JSON:", r_json);
-    return await r_json;
+    return r_json; // No need for await here
    } catch (error) {
-     console.error(`Error fetching ${fullUrl}:`, error);
-     throw new Error(`Error fetching ${error}:`);
+     console.error(`Error fetching ${url}:`, error);
+     throw new Error(`Error fetching ${url}: ${error instanceof Error ? error.message : String(error)}`);
     }
 }
 
 /**
  * Calls an API with a specified endpoint and ID, constructs the request URL, and retrieves data.
  *
- * @param {string} api - The API endpoint to call.
+ * @param {string} api - The API endpoint part (e.g., 'details').
  * @param {string} id - The unique identifier to append to the API endpoint.
  * @return {Promise<any>} A promise that resolves with the data retrieved from the API call.
  */
 export async function callRecipeApiWithID(api: string, id: string): Promise<any> {
-  const url = `/api/food/recipes/`;
-  return callWithID(url, api, id);
+  const basePath = `/api/food/recipes/`;
+  return callWithID(basePath, api, id);
 }
 
 export async function callIngredientApiWithID(id: string): Promise<any> {
@@ -69,39 +67,46 @@ export async function callIngredientApiWithID(id: string): Promise<any> {
      return getApi(url);
 }
 
-
-async function callWithID(url: string, api: string, id: string): Promise<any> {
+async function callWithID(basePath: string, api: string, id: string): Promise<any> {
   const revalidate = 86400;
-  let call = url + api + "+" + id;
-  return getApi(call, revalidate);
+  let finalPath = `${basePath}${api}/${id}`;
+  // Clean up potential double slashes if basePath ends with / and api starts with / (though it shouldn't here)
+  finalPath = finalPath.replace(/([^:]\/)\/+/g, "$1");
+  console.log("Constructed API call path:", finalPath);
+  return getApi(finalPath, revalidate);
 }
+
 
 export async function getImage(query: string) {
   const result = query.replace(/\s+/g, '+');
+  // This generates a relative path like /api/image?query=some+query
   return await getApi(`/api/image?query=${result}`)
 }
 
 export async function getSearch(query: string) {
+  // This generates a relative path like /api/search?query=somequery
   return await getApi(`/api/search?query=${query}`)
 }
 
 export async function getAIDescription(query: string) {
+  // This generates a relative path like /api/ai/description/somequery
   return await getApi(`/api/ai/description/${query}`)
 }
 
 export async function getAISubstitutions(query: string) {
+  // This generates a relative path like /api/ai/substitutions/somequery
   return await getApi(`/api/ai/substitutions/${query}`)
 }
 
 export async function getAIChat(query: string, context?: string) {
   const sanitizedQuery = encodeURIComponent(query);
+  let url = `/api/ai/chat?message=${sanitizedQuery}`;
   if (context) {
     const sanitizedContext = encodeURIComponent(context);
-    return await getApi(`/api/ai/chat?message=${sanitizedQuery}&context=${sanitizedContext}`);
+    url += `&context=${sanitizedContext}`;
   }
-  return await getApi(`/api/ai/chat?message=${sanitizedQuery}`);
+  return await getApi(url);
 }
-
 
 
 export async function handleRequest(body: any) {
