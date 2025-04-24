@@ -16,38 +16,62 @@ const pool = new Pool({
   connectionTimeoutMillis: 5000,
 });
 
-
+const internalApiUrl = 'http://api:8000';
 
 export async function getApi(url: string, revalidateSeconds?: number): Promise<any> {
   const fetchOptions: RequestInit & { next?: { revalidate?: number }; agent?: any } = {
-
     agent: new (require('https')).Agent({
-      rejectUnauthorized: false // Keep for flexibility, or remove if only calling relative paths
+      rejectUnauthorized: false // Keep for flexibility
     })
   };
 
-  if (revalidateSeconds !== undefined) {
-    fetchOptions.next = { revalidate: revalidateSeconds };
+  const isServerSide = typeof window === 'undefined';
+  let fullUrl: string;
+
+  const isAbsolute = url.startsWith('http://') || url.startsWith('https://');
+
+  if (isAbsolute) {
+    fullUrl = url; // Use the provided absolute URL directly
+  } else if (isServerSide) {
+    if (!internalApiUrl) {
+      console.error("FATAL: INTERNAL_API_URL environment variable is not set.");
+      throw new Error("INTERNAL_API_URL environment variable is not set for server-side API calls.");
+    }
+
+    fullUrl = `${internalApiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`;
+  } else {
+    fullUrl = url.startsWith('/') ? url : `/${url}`;
   }
 
+  console.log(`Executing fetch for: ${fullUrl} (Context: ${isServerSide ? 'Server' : 'Client'})`);
+
+  if (revalidateSeconds !== undefined && isServerSide) {
+    fetchOptions.next = { revalidate: revalidateSeconds };
+  } else if (revalidateSeconds !== undefined && !isServerSide) {
+     console.warn(`'revalidateSeconds' was provided for client-side fetch, but 'next.revalidate' is server-only. Ignoring revalidation for ${fullUrl}`);
+  }
+
+
   try {
-    const response = await fetch(url, fetchOptions);
+    const response = await fetch(fullUrl, fetchOptions);
+
     if (!response.ok) {
-      console.error(`Fetch error for ${url}: ${response.status} ${response.statusText}`);
+      console.error(`Fetch error for ${fullUrl}: ${response.status} ${response.statusText}`);
       let errorBody = '';
       try {
-        errorBody = await response.text();
-      } catch (e) { /* ignore */ }
-      throw new Error(`Fetch failed with status ${response.status} ${response.statusText}. Body: ${errorBody}`);
+        errorBody = await response.text(); // Attempt to get response body for more context
+      } catch (e) { /* ignore if reading body fails */ }
+      throw new Error(`Fetch failed: ${response.status} ${response.statusText}. URL: ${fullUrl}. Body: ${errorBody}`);
     }
-    console.log(`Fetched ${url} with status ${response.status} ${response.statusText}`);
-    let r_json = await response.json();
-    console.log("JSON:", r_json);
-    return r_json; // No need for await here
-   } catch (error) {
-     console.error(`Error fetching ${url}:`, error);
-     throw new Error(`Error fetching ${url}: ${error instanceof Error ? error.message : String(error)}`);
-    }
+
+    console.log(`Fetched ${fullUrl}`);
+    const r_json = await response.json();
+    return r_json;
+
+  } catch (error) {
+    console.error(`Error fetching ${fullUrl} (Context: ${isServerSide ? 'Server' : 'Client'}):`, error);
+    throw new Error(`Failed to fetch ${fullUrl}. Reason: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 /**
@@ -69,11 +93,10 @@ export async function callIngredientApiWithID(id: string): Promise<any> {
 
 async function callWithID(basePath: string, api: string, id: string): Promise<any> {
   const revalidate = 86400;
-  let finalPath = `${basePath}${api}/${id}`;
-  // Clean up potential double slashes if basePath ends with / and api starts with / (though it shouldn't here)
-  finalPath = finalPath.replace(/([^:]\/)\/+/g, "$1");
-  console.log("Constructed API call path:", finalPath);
-  return getApi(finalPath, revalidate);
+  let relativePath = `${basePath}${api}/${id}`;
+  relativePath = relativePath.replace(/([^:]\/)\/+/g, "$1"); // Clean double slashes
+  console.log("Constructed relative API path:", relativePath);
+  return getApi(relativePath, revalidate); // Pass relative path to getApi
 }
 
 
