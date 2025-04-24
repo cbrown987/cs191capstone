@@ -101,7 +101,7 @@ async def get_search_results(query: str):
     return search_results
 
 
-@app.get("/search/ingredients", response_model=SearchResult)
+@app.get("//search/ingredients", response_model=SearchResult)
 async def get_search_ingredients(query: str):
     """Get search ingredients by query"""
     mealdb = await get_themealdb()
@@ -135,7 +135,7 @@ async def ai_chat(message: str, context: str = ""):
     response_message = aibase.chat(message, context if context not in ["", None] else None)
     return AIResponseText(text=response_message)
 
-@app.get("//status")
+@app.get("/status")
 async def status():
     return "SHHHH Hobbes is sleeping on the couch"
 
