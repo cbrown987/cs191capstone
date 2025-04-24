@@ -135,6 +135,9 @@ async def ai_chat(message: str, context: str = ""):
     response_message = aibase.chat(message, context if context not in ["", None] else None)
     return AIResponseText(text=response_message)
 
+@app.get("/status")
+async def status():
+    return "SHHHH Hobbes is sleeping on the couch"
 
 if __name__ == "__main__":
     import uvicorn
