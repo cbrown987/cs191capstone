@@ -1,3 +1,5 @@
+'use client'
+
 import {callRecipeApiWithID, getImage} from "@/app/lib/api";
 import {RecipeComponent} from "@/app/components/RecipeComponent/RecipeComponent";
 

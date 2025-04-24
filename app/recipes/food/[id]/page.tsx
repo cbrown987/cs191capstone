@@ -1,3 +1,5 @@
+'use client'
+
 import {callRecipeApiWithID, getApi} from "@/app/lib/api";
 import {RecipeComponent} from "@/app/components/RecipeComponent/RecipeComponent";
 import {notFound} from "next/navigation";

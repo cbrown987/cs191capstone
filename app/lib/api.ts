@@ -93,10 +93,9 @@ export async function callIngredientApiWithID(id: string): Promise<any> {
 
 async function callWithID(basePath: string, api: string, id: string): Promise<any> {
   const revalidate = 86400;
-  let relativePath = `${basePath}${api}/${id}`;
-  relativePath = relativePath.replace(/([^:]\/)\/+/g, "$1"); // Clean double slashes
-  console.log("Constructed relative API path:", relativePath);
-  return getApi(relativePath, revalidate); // Pass relative path to getApi
+  let relativePath = `${basePath}${api}+${id}`;
+  relativePath = relativePath.replace(/([^:]\/)\/+/g, "$1");
+  return getApi(relativePath, revalidate);
 }
 
 

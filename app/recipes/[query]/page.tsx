@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * Landing page for searches.
  * @param params A search query given to the endpoint
