@@ -1,3 +1,5 @@
+'use client'
+
 import {MenuLink} from "@/app/components/menu/menuLink";
 import {getApi} from "@/app/lib/api";
 
