@@ -39,3 +39,14 @@ export interface ChatbotProps {
     height?: string;
     context?: string;
 }
+
+export type MenuItem = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+export type MenuData = {
+  food: MenuItem[];
+  drinks: MenuItem[];
+};
