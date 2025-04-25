@@ -130,6 +130,9 @@ export async function getAIChat(query: string, context?: string) {
   return await getApi(url);
 }
 
+export async function getMenu() {
+  return await getApi(`/api/menu/`, 86400);
+}
 
 export async function handleRequest(body: any) {
   const client = await pool.connect(); // gets a fresh client

@@ -2,9 +2,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-RUN apk add git
+COPY . .
 
-RUN git clone {{ git_repo }} .
 
 RUN npm install -g pnpm
 

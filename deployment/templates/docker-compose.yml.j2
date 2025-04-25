@@ -17,8 +17,8 @@ services:
 
   api:
     build:
-      context: .
-      dockerfile: api/Dockerfile
+      context: ./source
+      dockerfile: api.Dockerfile
     image: '{{ app_name }}-fastapi'
     restart: unless-stopped
     expose:
@@ -30,8 +30,8 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./source
+      dockerfile: Dockerfile
     image: '{{ app_name }}-next'
     restart: unless-stopped
     expose:

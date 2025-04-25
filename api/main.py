@@ -52,7 +52,7 @@ async def food_recipes(limit: int = 10):
     return recipes
 
 
-@app.get("/menu/", response_model=Menu)
+@app.get("api/menu/", response_model=Menu)
 async def get_menu():
     """Get menu"""
     return await handle_menu_calls()
@@ -101,7 +101,7 @@ async def get_search_results(query: str):
     return search_results
 
 
-@app.get("//search/ingredients", response_model=SearchResult)
+@app.get("/search/ingredients", response_model=SearchResult)
 async def get_search_ingredients(query: str):
     """Get search ingredients by query"""
     mealdb = await get_themealdb()

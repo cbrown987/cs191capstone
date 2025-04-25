@@ -1,11 +1,12 @@
 'use client'
 
 import {MenuLink} from "@/app/components/menu/menuLink";
-import {getApi} from "@/app/lib/api";
+import {getMenu} from "@/app/lib/api";
 
-const getMenuItems = getApi("/api/menu/", 86400); // Cache for 24 hours
 
 export const Menu = async () => {
+    const getMenuItems = await getMenu()
+
     const [menuItemsResults] = await Promise.allSettled([
         getMenuItems,
     ]);
