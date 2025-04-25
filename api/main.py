@@ -52,7 +52,7 @@ async def food_recipes(limit: int = 10):
     return recipes
 
 
-@app.get("api/menu/", response_model=Menu)
+@app.get("/api/menu/", response_model=Menu)
 async def get_menu():
     """Get menu"""
     return await handle_menu_calls()
