@@ -5,8 +5,7 @@
   import {getMenu} from "@/app/lib/api";
   import {MenuData} from "@/app/interfaces";
 
-
-    export const Menu = () => {
+export const Menu = () => {
         const [menuItems, setMenuItems] = useState<MenuData | null>(null);
         const [isLoading, setIsLoading] = useState(true);
         const [error, setError] = useState<string | null>(null);

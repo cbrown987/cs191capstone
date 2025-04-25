@@ -1,3 +1,5 @@
+'use client';
+
 import { Suspense } from "react";
 import { Menu } from "@/app/components/menu/menu";
 

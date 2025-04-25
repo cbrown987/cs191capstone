@@ -1,3 +1,5 @@
+'use client'
+
 import {MenuLinkProps} from "@/app/interfaces";
 import Link from "next/link";
 
