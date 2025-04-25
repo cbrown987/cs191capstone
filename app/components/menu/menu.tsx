@@ -90,7 +90,7 @@ export const Menu = () => {
                                             linkText={item['name'] || 'Unnamed Item'}
                                             link={item['id'] || '#'}
                                             description={item['description'] || 'drink'}
-                                            type={'drink'}
+                                            type={'drinks'}
                                         />
                                     ))
                                 ) : (

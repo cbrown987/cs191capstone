@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {getAIChat} from "@/app/lib/api";
 import {ChatbotProps} from "@/app/interfaces";
 
@@ -10,7 +10,6 @@ export const ChatbotComponent = ({height = '60vh', context = ''}: ChatbotProps) 
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom of chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -32,7 +31,6 @@ export const ChatbotComponent = ({height = '60vh', context = ''}: ChatbotProps) 
         data.text
       )
 
-
       setMessages(prev => [...prev, { role: 'assistant', content: data.text }]);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -44,10 +42,11 @@ export const ChatbotComponent = ({height = '60vh', context = ''}: ChatbotProps) 
       setIsLoading(false);
     }
   };
+
   return(
     <>
       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-        <div className={`h-[${height}] overflow-y-auto mb-4 p-2`}>
+        <div className={`h-[${height}] overflow-y-auto mb-4 p-2`} style={{ height }}>
           {messages.map((message, index) => (
             <div
               key={index}
