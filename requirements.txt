@@ -7,3 +7,5 @@ flask-cors~=5.0.1
 openai~=1.65.4
 fastapi~=0.115.12
 better_profanity~=0.7.0
+SQLAlchemy==2.0.40
+psycopg2==2.9.10

@@ -1,14 +1,16 @@
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
 from api.endpoints import TheMealDB, TheCocktailDB
 from api.endpoints.AI.AI_base import AIBase
+from api.endpoints.DB import database, crud
 from api.endpoints.photos.pixabay import Pixabay
 from api.util.conversions import Recipe, convert_to_recipe, \
     convert_to_search_results, combine_search_results, Ingredient, SearchResult
-from api.util.fastapi_types import Menu, ImageURL, AIResponseText
+from api.util.fastapi_types import Menu, ImageURL, AIResponseText, LoginRequest, User, UserCreate, SaveRecipeRequest
 from api.util.filtering import ContentFilter
 from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls, handle_menu_calls
 
@@ -43,6 +45,7 @@ async def get_aibase() -> AIBase:
 # ************
 # ** Routes **
 # ************
+@app.get("/api/food/recipes", response_model=List[Recipe])
 @app.get("/food/recipes", response_model=List[Recipe])
 async def food_recipes(limit: int = 10):
     """Get a list of random food recipes."""
@@ -58,7 +61,8 @@ async def get_menu():
     """Get menu"""
     return await handle_menu_calls()
 
-
+@app.get("/api/food/recipes/{call_id}", response_model=Recipe)
+@app.get("/api/drink/recipes/{call_id}", response_model=Recipe)
 @app.get("/food/recipes/{call_id}", response_model=Recipe)
 @app.get("/drink/recipes/{call_id}", response_model=Recipe)
 async def recipe_from_id(call_id: str):
@@ -66,7 +70,7 @@ async def recipe_from_id(call_id: str):
     recipe = handle_id_calls(call_id)
     return recipe
 
-
+@app.get("api//drink/recipes", response_model=List[Recipe])
 @app.get("/drink/recipes", response_model=List[Recipe])
 async def get_random_drink_recipes(limit: int = 10):
     """Get a list of random drink recipes."""
@@ -76,7 +80,7 @@ async def get_random_drink_recipes(limit: int = 10):
     recipes = [convert_to_recipe(drink) for drink in drinks]
     return recipes
 
-
+@app.get("/api/ingredients/{call_id}", response_model=Ingredient)
 @app.get("/ingredients/{call_id}", response_model=Ingredient)
 async def ingredients_by_id(call_id: str):
     """Get ingredient by id"""
@@ -84,7 +88,7 @@ async def ingredients_by_id(call_id: str):
     ingredient = handle_ingredient_calls(call_id)
     return ingredient
 
-
+@app.get("/api/image", response_model=ImageURL)
 @app.get("/image", response_model=ImageURL)
 async def get_image(query: str):
     """Get image by query"""
@@ -94,14 +98,14 @@ async def get_image(query: str):
         return ImageURL(url="")
     return ImageURL(url=image_url)
 
-
+@app.get("/api/search", response_model=SearchResult)
 @app.get("/search", response_model=SearchResult)
 async def get_search_results(query: str):
     """Get search results by query"""
     search_results = handle_name_search_calls(query)
     return search_results
 
-
+@app.get("/api/search/ingredients", response_model=SearchResult)
 @app.get("/search/ingredients", response_model=SearchResult)
 async def get_search_ingredients(query: str):
     """Get search ingredients by query"""
@@ -112,7 +116,7 @@ async def get_search_ingredients(query: str):
         r.append(convert_to_search_results(x))
     return combine_search_results(*r)
 
-
+@app.get("/api/ai/description/{query}", response_model=AIResponseText)
 @app.get("/ai/description/{query}", response_model=AIResponseText)
 async def get_ai_description(query: str):
     """Get AI description by query"""
@@ -120,7 +124,7 @@ async def get_ai_description(query: str):
     description = aibase.query_for_description(query)
     return AIResponseText(text=description)
 
-
+@app.get("/api/ai/substitutions/{query}", response_model=AIResponseText)
 @app.get("/ai/substitutions/{query}", response_model=AIResponseText)
 async def get_ai_substitution(query: str):
     """Get AI substitution by query"""
@@ -128,6 +132,7 @@ async def get_ai_substitution(query: str):
     substitution = aibase.query_for_substitutions(query)
     return AIResponseText(text=substitution)
 
+@app.get("/api/ai/chat", response_model=AIResponseText)
 @app.get("/ai/chat", response_model=AIResponseText)
 async def ai_chat(message: str, context: str = ""):
     """Get AI chat response by message"""
@@ -136,10 +141,50 @@ async def ai_chat(message: str, context: str = ""):
     response_message = aibase.chat(message, context if context not in ["", None] else None)
     return AIResponseText(text=response_message)
 
+@app.post("/api/auth/login", response_model=User)
+@app.post("/auth/login", response_model=User)
+def login(login_request: LoginRequest, db: Session = Depends(database.get_db)):
+    user = crud.get_user_by_username(db, login_request.username)
+    if not user or user.password != login_request.password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
+    return user
+
+@app.post("/api/auth/signup", response_model=User)
+@app.post("/auth/signup", response_model=User)
+def signup(user: UserCreate, db: Session = Depends(database.get_db)):
+    db_user = crud.get_user_by_username(db, user.username)
+    if db_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered",
+        )
+    return crud.create_user(db, user)
+
+@app.post("/api/recipes/save", response_model=User)
+@app.post("/recipes/save", response_model=User)
+def save_recipe(recipe_request: SaveRecipeRequest, db: Session = Depends(database.get_db)):
+    updated_user = crud.save_recipe(
+        db,
+        recipe_request.username,
+        recipe_request.recipeName,
+        recipe_request.recipeId,
+        recipe_request.recipeType
+    )
+    if not updated_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return updated_user
+
+
 @app.get("/status")
 async def status():
     return "SHHHH Hobbes is sleeping on the couch"
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)

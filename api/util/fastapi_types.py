@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel
 
 
@@ -45,3 +45,32 @@ class SearchResult(BaseModel):
 
 class AIResponseText(BaseModel):
     text: str
+
+# AWS schemas
+
+class UserBase(BaseModel):
+    username: str
+    email: str
+    name: Optional[str] = None
+    about: Optional[str] = None
+
+class UserCreate(UserBase):
+    password: str
+    saved_recipes: List[Dict] = []
+
+class User(UserBase):
+    id: int
+    saved_recipes: List[Dict] = []
+
+    class Config:
+        orm_mode = True
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class SaveRecipeRequest(BaseModel):
+    username: str
+    recipeName: str
+    recipeId: str
+    recipeType: str

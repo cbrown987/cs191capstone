@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import {saveRecipe} from "@/app/lib/api";
 
 interface SaveRecipeButtonProps {
   recipeId: string;
@@ -25,17 +26,12 @@ export default function SaveRecipeButton({
 
     const user = JSON.parse(storedUser);
 
-    const res = await fetch('/api', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'save_recipe',
+    const res = await saveRecipe({
         username: user.username,
         recipeName,
-        recipeId,       // un-prefixed ID
-        recipeType,     // "food" or "drink"
-      }),
-    });
+        recipeId,
+        recipeType,
+      });
 
     const data = await res.json();
     if (data.success) {

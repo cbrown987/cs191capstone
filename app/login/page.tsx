@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { loginUser } from "@/app/lib/api";
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -19,26 +20,16 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await fetch('/api', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'login', username, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setMessageType('success');
-        setMessage('Login successful! Redirecting...');
-        setTimeout(() => router.push('/'), 1500);
-      } else {
-        setMessageType('error');
-        setMessage(data.message || 'Login failed. Please try again.');
-      }
+      const data = await loginUser(username, password);
+      
+      // Successfully logged in
+      localStorage.setItem('user', JSON.stringify(data));
+      setMessageType('success');
+      setMessage('Login successful! Redirecting...');
+      setTimeout(() => router.push('/'), 1500);
     } catch (err) {
       setMessageType('error');
-      setMessage('Something went wrong. Please try again later.');
+      setMessage(err instanceof Error ? err.message : 'Login failed. Please try again.');
     }
   };
 

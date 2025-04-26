@@ -1,20 +1,6 @@
 // @ts-ignore
-process.env.NODE_PG_FORCE_NATIVE = "0";
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-import { Pool } from 'pg';
-
-const pool = new Pool({
-  user: process.env.AWS_USER,
-  host: String(process.env.AWS_HOST),
-  database: process.env.AWS_DATABASE,
-  password: process.env.AWS_PASSWORD,
-  port: parseInt(process.env.AWS_PORT || '5432'),
-  ssl: {
-    rejectUnauthorized: false,
-  },
-  connectionTimeoutMillis: 5000,
-});
 
 const internalApiUrl = 'http://api:8000';
 
@@ -134,58 +120,62 @@ export async function getMenu() {
   return await getApi(`/api/menu/`, 86400);
 }
 
-export async function handleRequest(body: any) {
-  const client = await pool.connect(); // gets a fresh client
-  try {
-    const { type } = body;
+export async function loginUser(username: string, password: string) {
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password }),
+  });
+  console.log("Login response:", response);
 
-    if (type === 'login') {
-      const { username, password } = body;
-      const result = await client.query(
-        'SELECT * FROM users WHERE username = $1 AND password = $2',
-        [username, password]
-      );
-      return result.rows.length > 0
-        ? { success: true, user: result.rows[0] }
-        : { success: false, message: 'Invalid credentials' };
-    }
-
-    if (type === 'signup') {
-      const { name, username, email, password, about, saved_recipes } = body;
-      await client.query(
-        'INSERT INTO users (name, username, email, password, about, saved_recipes) VALUES ($1, $2, $3, $4, $5, $6::jsonb)',
-        [name, username, email, password, about, JSON.stringify(saved_recipes)]
-      );
-      return { success: true, message: 'User created' };
-    }
-
-    if (type === 'save_recipe') {
-      const { username, recipeName, recipeId, recipeType } = body;
-
-      console.log("Save recipe incoming data:", { username, recipeName, recipeId, recipeType });
-
-      if (!username || !recipeName || !recipeId || !recipeType) {
-        return { success: false, message: 'Missing recipe fields' };
-      }
-
-      const prefix = (recipeType === "drink" || recipeType === "drinks") ? "C" : "M";
-      const fullId = `${prefix}${recipeId}`;
-
-      const newRecipe = { [recipeName]: fullId };
-
-      await client.query(
-        'UPDATE users SET saved_recipes = saved_recipes || $1::jsonb WHERE username = $2',
-        [JSON.stringify([newRecipe]), username]
-      );
-
-      return { success: true, message: 'Recipe saved' };
-    }
-
-    return { success: false, message: 'Unsupported request type' };
-  } catch (err) {
-    console.error('DB handler error:', err);
-    return { success: false, message: 'DB error' };
-  } finally {
-    client.release();
+  if (!response.ok) {
+    throw new Error('Login failed');
   }
+
+  return response.json();
+}
+
+export async function signupUser(userData: {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+  about?: string;
+}) {
+  const response = await fetch('/api/auth/signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Signup failed');
+  }
+
+  return response.json();
+}
+
+export async function saveRecipe(recipeData: {
+  username: string;
+  recipeName: string;
+  recipeId: string;
+  recipeType: string;
+}) {
+  const response = await fetch('/api/recipes/save', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(recipeData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to save recipe');
+  }
+
+  return response.json();
 }
