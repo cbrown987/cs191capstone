@@ -70,7 +70,7 @@ async def recipe_from_id(call_id: str):
     recipe = handle_id_calls(call_id)
     return recipe
 
-@app.get("api//drink/recipes", response_model=List[Recipe])
+@app.get("/api/drink/recipes", response_model=List[Recipe])
 @app.get("/drink/recipes", response_model=List[Recipe])
 async def get_random_drink_recipes(limit: int = 10):
     """Get a list of random drink recipes."""
