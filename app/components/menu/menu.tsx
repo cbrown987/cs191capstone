@@ -30,8 +30,13 @@ export const Menu = () => {
         }, []);
 
         if (isLoading) {
-            return <div className="text-center py-10">Loading menu...</div>;
-        }
+            return (
+        <div className="text-center py-16 flex flex-col items-center justify-center">
+            <div className="w-12 h-12 border-4 border-[#902425]/20 border-t-[#902425] rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+        </div>
+    );
+}
 
         if (error) {
             return <div className="text-center py-10 text-red-600">{error}</div>;
@@ -43,17 +48,19 @@ export const Menu = () => {
         const hasDrinkItems = Array.isArray(drink_items) && drink_items.length > 0;
 
         return (
-            <div className="max-w-4xl mx-auto px-6 py-8 bg-white min-h-screen flex flex-col">
+            <div className="max-w-4xl mx-auto px-6 py-8 bg-white min-h-screen flex flex-col border border-[#902425]/20 shadow-md rounded-lg my-8">
                 {/* Header / Title */}
-                <header className="text-center mb-6">
-                    <h1 className="text-3xl font-serif tracking-wide text-[#902425]">
-                        MENU
-                    </h1>
-                    <div className="mt-3 mb-5 flex items-center justify-center">
+                <header className="text-center mb-8">
+                    <div className="flex items-center justify-center mb-2">
+                        <div className="h-px w-16 bg-[#902425]"></div>
+                        <h1 className="text-3xl font-serif tracking-wide text-[#902425] mx-4 font-bold">
+                            MENU
+                        </h1>
+                        <div className="h-px w-16 bg-[#902425]"></div>
                     </div>
                 </header>
 
-                <div className="grid grid-cols-2 gap-8 flex-grow">
+                <div className="grid md:grid-cols-2 gap-10 flex-grow">
                   <section>
                         <h2 className="text-center text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
                             Food
@@ -101,8 +108,14 @@ export const Menu = () => {
                     </section>
                 </div>
 
-                <footer className="mt-6 text-center">
-                    <div className="w-12 h-px bg-black mx-auto mb-2"></div>
+                <footer className="mt-12 text-center">
+                    <div className="flex items-center justify-center">
+                        <div className="h-px w-16 bg-[#902425]/40"></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mx-4 text-[#902425]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <div className="h-px w-16 bg-[#902425]/40"></div>
+                    </div>
                 </footer>
             </div>
         );
