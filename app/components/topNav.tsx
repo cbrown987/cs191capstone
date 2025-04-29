@@ -4,6 +4,8 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import SearchBar from "@/app/components/search";
 import { useRouter } from "next/navigation";
+import Image from 'next/image';
+
 
 const TopNav: React.FC = () => {
   const router = useRouter();
@@ -63,9 +65,12 @@ const TopNav: React.FC = () => {
           {user ? (
             <button onClick={() => router.push("/profile")}>
               <img
-                src="public//images/user.png"
+                src="/images/user.png"
                 alt="User"
+                width="32"
+                height="32"
                 className="h-8 w-8 rounded-full cursor-pointer"
+                style={{ minWidth: '32px', minHeight: '32px' }}
               />
             </button>
           ) : (
