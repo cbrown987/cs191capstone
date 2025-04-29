@@ -41,8 +41,5 @@ class SavedMenu(AWSDB.Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     saved_menu = Column(JSONB)
     timestamp = Column(TIMESTAMP(timezone=True), server_default = text("CURRENT_TIMESTAMP"))
+    name = Column(String)
     user_associations = relationship("UserSavedMenus", back_populates="menu")
-
-
-
-

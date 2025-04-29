@@ -187,7 +187,7 @@ def save_recipe(recipe_request: SaveRecipeRequest, db: Session = Depends(databas
 @app.post("/menu/save")
 def save_menu(menu_save_request: SaveMenuRequest, db: Session = Depends(database.get_db)):
     try:
-        handle_save_menu(menu_save_request.menu, menu_save_request.user_id, db)
+        handle_save_menu(menu_save_request.menu, menu_save_request.user_id, menu_save_request.name, db)
     except Exception as e:
         logging.error(f"Exception saving menu: {e}")
         raise HTTPException(

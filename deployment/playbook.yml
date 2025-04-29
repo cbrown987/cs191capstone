@@ -217,6 +217,7 @@
       uri:
         url: "https://{{ domain_name }}"
         validate_certs: no
+      become: yes
       register: website_check
       ignore_errors: yes
       delegate_to: localhost

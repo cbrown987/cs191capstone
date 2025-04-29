@@ -13,6 +13,7 @@ export const Menu = () => {
         const [data, setData] = useState<any>(null);
         const [savedMenus, setSavedMenus] = useState<any[]>([]);
         const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+        const [menuTitle, setMenuTitle] = useState<string>("MENU");
 
         const handleSaveMenu = () => {
           const user_id = getUserID()
@@ -23,6 +24,7 @@ export const Menu = () => {
             saveMenu({
               "user_id": user_id,
               "menu": data,
+              "name": menuTitle
             })
               .then(res => {
                 console.log(res);
@@ -39,7 +41,12 @@ export const Menu = () => {
             const formattedData = menuData.menu || menuData;
             setData(formattedData);
             setMenuItems(formattedData);
-
+            if(formattedData.name) {
+              setMenuTitle(formattedData.name)
+            }
+            else {
+              setMenuTitle("MENU")
+            }
             setIsLoading(false);
             setIsDropdownOpen(false);
         }
@@ -111,9 +118,14 @@ export const Menu = () => {
                 <header className="text-center mb-8">
                     <div className="flex items-center justify-center mb-2">
                         <div className="h-px w-16 bg-[#902425]"></div>
-                        <h1 className="text-3xl font-serif tracking-wide text-[#902425] mx-4 font-bold">
-                            MENU
-                        </h1>
+                        <input
+                            type="text"
+                            value={menuTitle} 
+                            onChange={(e) => setMenuTitle(e.target.value)}
+                            className="text-3xl font-serif tracking-wide text-[#902425] mx-4 font-bold bg-transparent border-none text-center focus:outline-none focus:ring-0"
+                            placeholder="MENU"
+                            aria-label="Menu title"
+                        />
                         <div className="h-px w-16 bg-[#902425]"></div>
                     </div>
                 </header>
@@ -207,7 +219,7 @@ export const Menu = () => {
                                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                                                     role="menuitem"
                                                 >
-                                                    {menuItem.timestamp || `Saved Menu ${index + 1}`}
+                                                    {menuItem.name || `Saved Menu ${index + 1}`}
                                                 </button>
                                             ))
                                         )}

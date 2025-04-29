@@ -53,14 +53,15 @@ def get_saved_menus_db(db: Session, user_id: str):
         .filter(User.id == user_id) \
         .all()
 
-def save_menu_db(db: Session, save_request_menu: Menu, user_id: int):
+def save_menu_db(db: Session, save_request_menu: Menu, user_id: int, menu_name: str | None = None):
     json_menu = save_request_menu.model_dump_json()
     new_menu_id = uuid.uuid4()
 
     new_menu = SavedMenu(
         id=new_menu_id,
         saved_menu=json_menu,
-        timestamp=func.now()
+        timestamp=func.now(),
+        name=menu_name
 
     )
     db.add(new_menu)

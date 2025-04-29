@@ -13,6 +13,7 @@ class Menu(BaseModel):
     food: List[_MenuItem]
     drinks: List[_MenuItem]
     timestamp: str | None = None
+    name: str | None = None
 
 
 class Ingredient(BaseModel):
@@ -79,4 +80,5 @@ class SaveRecipeRequest(BaseModel):
 class SaveMenuRequest(BaseModel):
     user_id: int
     menu: Menu
+    name: str | None = None
 

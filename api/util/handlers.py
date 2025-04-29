@@ -130,9 +130,9 @@ async def get_cocktails(cocktaildb, count):
     return await asyncio.to_thread(cocktaildb.get_n_random, count)
 
 
-def handle_save_menu(save_request_menu: Menu, user_id: int, db):
+def handle_save_menu(save_request_menu: Menu, user_id: int, menu_name: str, db):
     try:
-        new_menu_id = save_menu_db(db, save_request_menu, user_id)
+        new_menu_id = save_menu_db(db, save_request_menu, user_id, menu_name)
         logging.info(f"Menu saved successfully: {new_menu_id}")
         return new_menu_id
 
@@ -152,6 +152,8 @@ def handle_get_menus(user_id, db):
             pydantic_menu = Menu.model_validate_json(menu.saved_menu)
             if menu.timestamp:
                 pydantic_menu.timestamp = menu.timestamp.isoformat()
+            if menu.name:
+                pydantic_menu.name = menu.name
             pydantic_menus.append(pydantic_menu)
         except ValidationError as e:
             print(f"Validation Error converting Saved_menu: {e}")
