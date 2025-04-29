@@ -17,6 +17,8 @@
           - docker-compose
           - git
           - python3-pip
+          - certbot
+          - python3-certbot-nginx
         state: present
       when: ansible_os_family == "Debian"
 
@@ -95,11 +97,54 @@
         group: "{{ ansible_user }}"
         mode: '0644'
 
-    - name: Check for SSL certificates
+    - name: Shutdown previous stack
+      shell: docker-compose down
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: "{{ ansible_user }}"
+      environment:
+        PATH: /usr/local/bin:{{ ansible_env.PATH }}
+
+    - name: Remove existing self-signed certificates
+      file:
+        path: "{{ app_dir }}/nginx/ssl/{{ item }}"
+        state: absent
+      loop:
+        - fullchain.pem
+        - privkey.pem
+      when: force_new_cert | default(false) | bool
+
+
+    - name: Check for existing Let's Encrypt certificates
       stat:
         path: "{{ app_dir }}/nginx/ssl/fullchain.pem"
       register: ssl_cert
-    - name: Generate self-signed certificate
+
+    - name: Obtain Let's Encrypt certificates
+      command: >
+        certbot certonly --standalone --agree-tos --email {{ admin_email }} 
+        -d {{ domain_name }} --non-interactive
+        --cert-path {{ app_dir }}/nginx/ssl/fullchain.pem 
+        --key-path {{ app_dir }}/nginx/ssl/privkey.pem
+      args:
+        creates: "{{ app_dir }}/nginx/ssl/fullchain.pem"
+      when: not ssl_cert.stat.exists
+      register: certbot_result
+
+    - name: Copy Let's Encrypt certificates to Nginx directory
+      copy:
+        src: "/etc/letsencrypt/live/{{ domain_name }}/{{ item.src }}"
+        dest: "{{ app_dir }}/nginx/ssl/{{ item.dest }}"
+        remote_src: yes
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0600'
+      loop:
+        - { src: 'fullchain.pem', dest: 'fullchain.pem' }
+        - { src: 'privkey.pem', dest: 'privkey.pem' }
+      when: not ssl_cert.stat.exists
+
+    - name: Generate self-signed certificate (fallback)
       shell: |
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -keyout {{ app_dir }}/nginx/ssl/privkey.pem \
@@ -107,7 +152,7 @@
         -subj "/CN={{ domain_name }}"
       args:
         creates: "{{ app_dir }}/nginx/ssl/fullchain.pem"
-      when: not ssl_cert.stat.exists
+      when: not ssl_cert.stat.exists and (certbot_result is defined and certbot_result.failed is defined and certbot_result.failed)
 
     - name: Set SSL certificates permissions
       file:
@@ -118,7 +163,14 @@
       loop:
         - privkey.pem
         - fullchain.pem
-      when: not ssl_cert.stat.exists
+
+    - name: Add Certbot auto-renewal cron job
+      cron:
+        name: "Let's Encrypt certificate renewal"
+        job: "certbot renew --quiet && systemctl reload nginx"
+        special_time: daily
+        state: present
+
 
     - name: Create environment file
       template:
@@ -136,13 +188,6 @@
       environment:
         PATH: /usr/local/bin:{{ ansible_env.PATH }}
 
-    - name: Shutdown previous stack
-      shell: docker-compose down
-      args:
-        chdir: "{{ app_dir }}"
-      become_user: "{{ ansible_user }}"
-      environment:
-        PATH: /usr/local/bin:{{ ansible_env.PATH }}
 
     - name: Start application stack
       shell: docker-compose up -d

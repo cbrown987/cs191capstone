@@ -90,11 +90,15 @@ def convert_to_search_results(json_data: Dict[str, Any]) -> SearchResult:
     Returns:
         A SearchResult object containing a list of _SearchResult objects
     """
-    if 'meals' in json_data and json_data['meals']:
+    if 'meals' in json_data:
+        if json_data['meals'] is None:
+            return SearchResult(results=[])
         items = json_data['meals']
         database_code = 'M'
         convert_function = convert_to_recipe
-    elif 'drinks' in json_data and json_data['drinks']:
+    elif 'drinks' in json_data:
+        if json_data['drinks'] is None:
+            return SearchResult(results=[])
         items = json_data['drinks']
         database_code = 'D'
         convert_function = convert_to_recipe
@@ -161,3 +165,4 @@ def get_valid_literals(text):
     else:
         print("No JSON array found in the text")
         return None, text
+

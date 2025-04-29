@@ -2,9 +2,11 @@
 # Application settings
 app_name: cs191capstone
 app_dir: /opt/{{ app_name }}
-domain_name: 3.145.175.16
+domain_name: rhubarb.fyi
 git_repo: https://github.com/cbrown987/cs191capstone
 git_branch: main
+force_new_cert: false
+admin_email: cooper.brown197@gmail.com
 
 # Docker settings
 docker_network: app-network
