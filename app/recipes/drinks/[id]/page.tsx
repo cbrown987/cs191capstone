@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import {callRecipeApiWithID, getImage} from "@/app/lib/api";
+import { useState, useEffect} from 'react';
+import {callRecipeApiWithID} from "@/app/lib/api";
 import {RecipeComponent} from "@/app/components/RecipeComponent/RecipeComponent";
 
 /**

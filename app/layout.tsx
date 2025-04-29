@@ -2,14 +2,13 @@
 import './globals.css'
 
 import TopNav from "@/app/components/topNav";
-import {useUser} from "@/app/hooks/Auth";
-import { Analytics } from "@vercel/analytics/react";
+import {getUsername} from "@/app/hooks/Auth";
+import React from "react";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-    const { user } = useUser();
+    const { user } = getUsername();
     return (
         <html lang="en">
-            <Analytics />
             <body className={`accent-background p-4 text-gray-900`}>
                 <TopNav />
                 <main className="container mx-auto p-4">{children}</main>

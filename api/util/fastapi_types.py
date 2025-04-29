@@ -12,6 +12,7 @@ class _MenuItem(BaseModel):
 class Menu(BaseModel):
     food: List[_MenuItem]
     drinks: List[_MenuItem]
+    timestamp: str | None = None
 
 
 class Ingredient(BaseModel):
@@ -63,7 +64,7 @@ class User(UserBase):
     saved_recipes: List[Dict] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class LoginRequest(BaseModel):
     username: str
@@ -74,3 +75,8 @@ class SaveRecipeRequest(BaseModel):
     recipeName: str
     recipeId: str
     recipeType: str
+
+class SaveMenuRequest(BaseModel):
+    user_id: int
+    menu: Menu
+

@@ -1,11 +1,18 @@
 import ast
 import asyncio
 import logging
+import uuid
 from functools import lru_cache
+from typing import List
+
+from pydantic import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 from api.const import MENU_QUERY_ITEMS
 from api.endpoints import TheMealDB, TheCocktailDB
 from api.endpoints.AI.AI_base import AIBase
+from api.endpoints.DB.crud import get_saved_menus_db, save_menu_db
+from api.endpoints.DB.models import SavedMenu, UserSavedMenus, User
 from api.util.conversions import convert_to_recipe, convert_to_ingredient, convert_to_search_results, \
     combine_search_results, get_valid_literals
 from api.util.fastapi_types import Menu
@@ -29,7 +36,7 @@ def handle_api_call(call_id: str, search_method: str = 'search_by_id'):
     try:
         db_type, item_id = call_id.split('+')
         db_class = _API_IDS[db_type]
-        if search_method is "search_by_name":
+        if search_method == "search_by_name":
             db_class = ContentFilter(db_class)
         else:
             db_class = db_class()
@@ -49,8 +56,11 @@ def handle_ingredient_calls(call_id: str):
             db_class = _API_IDS[db_type]
             ingredient = getattr(db_class(), 'get_ingredient_by_id')(call_id)
             return convert_to_ingredient(ingredient)
-        except:
-            pass
+        except Exception as e:
+            logging.error(f"Error getting ingredient: {e}")
+            return None
+    return None
+
 
 def handle_name_search_calls(query: str):
     response = []
@@ -120,3 +130,31 @@ async def get_cocktails(cocktaildb, count):
     return await asyncio.to_thread(cocktaildb.get_n_random, count)
 
 
+def handle_save_menu(save_request_menu: Menu, user_id: int, db):
+    try:
+        new_menu_id = save_menu_db(db, save_request_menu, user_id)
+        logging.info(f"Menu saved successfully: {new_menu_id}")
+        return new_menu_id
+
+    except SQLAlchemyError as e:
+        db.rollback()
+        logging.error(f"Error saving menu: {e}")
+        return None
+    finally:
+        db.close()
+
+def handle_get_menus(user_id, db):
+    menus = get_saved_menus_db(db, user_id)
+
+    pydantic_menus: List[Menu] = []
+    for menu in menus:
+        try:
+            pydantic_menu = Menu.model_validate_json(menu.saved_menu)
+            if menu.timestamp:
+                pydantic_menu.timestamp = menu.timestamp.isoformat()
+            pydantic_menus.append(pydantic_menu)
+        except ValidationError as e:
+            print(f"Validation Error converting Saved_menu: {e}")
+        except Exception as e:
+            print(f"Unexpected Error converting Saved_menu: {e}")
+    return pydantic_menus

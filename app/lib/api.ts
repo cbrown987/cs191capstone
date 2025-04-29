@@ -120,6 +120,24 @@ export async function getMenu() {
   return await getApi(`/api/menu/`, 86400);
 }
 
+export async function saveMenu(menu: object) {
+  const response = await fetch('/api/menu/save', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(menu),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to save menu');
+  }
+  return response.json();
+}
+
+export async function getSavedMenu(user_id: string) {
+  return await getApi(`/api/menu/get?user_id=${user_id}`)
+}
+
 export async function loginUser(username: string, password: string) {
   const response = await fetch('/api/auth/login', {
     method: 'POST',

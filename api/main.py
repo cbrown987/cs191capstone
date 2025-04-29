@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -10,9 +11,11 @@ from api.endpoints.DB import database, crud
 from api.endpoints.photos.pixabay import Pixabay
 from api.util.conversions import Recipe, convert_to_recipe, \
     convert_to_search_results, combine_search_results, Ingredient, SearchResult
-from api.util.fastapi_types import Menu, ImageURL, AIResponseText, LoginRequest, User, UserCreate, SaveRecipeRequest
+from api.util.fastapi_types import Menu, ImageURL, AIResponseText, LoginRequest, User, UserCreate, SaveRecipeRequest, \
+    SaveMenuRequest
 from api.util.filtering import ContentFilter
-from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls, handle_menu_calls
+from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls, handle_menu_calls, \
+    handle_save_menu, handle_get_menus
 
 app = FastAPI()
 
@@ -180,9 +183,31 @@ def save_recipe(recipe_request: SaveRecipeRequest, db: Session = Depends(databas
         )
     return updated_user
 
+@app.post("/api/menu/save")
+@app.post("/menu/save")
+def save_menu(menu_save_request: SaveMenuRequest, db: Session = Depends(database.get_db)):
+    try:
+        handle_save_menu(menu_save_request.menu, menu_save_request.user_id, db)
+    except Exception as e:
+        logging.error(f"Exception saving menu: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return status.HTTP_200_OK
+
+@app.get("/api/menu/get", response_model=list[Menu])
+@app.get("/menu/get", response_model=list[Menu])
+def get_saved_menus(user_id: int, db: Session = Depends(database.get_db)):
+    try:
+        return handle_get_menus(user_id, db)
+    except Exception as e:
+        logging.error(f"Exception fetching menus: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @app.get("/status")
-async def status():
+async def status_report():
     return "SHHHH Hobbes is sleeping on the couch"
 
 if __name__ == "__main__":
