@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import {IngredientComponentProps} from "@/app/interfaces";
-import {getAISubstitutions} from "@/app/lib/api";
+import {callIngredientApiWithID, getAISubstitutions, getRecommendation} from "@/app/lib/api";
 import {ChatbotComponent} from "@/app/components/ChatbotComponent/ChatbotComponent";
 import Papa from "papaparse"; // Import papaparse for CSV parsing
 
@@ -64,24 +64,33 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
 
     const handleSearchRecipes = async () => {
       try {
-        const response = await fetch("/data/food.csv"); // Replace with actual path
-        const csvText = await response.text();
-        Papa.parse(csvText, {
-          header: true,
-          dynamicTyping: true,
-          complete: (result) => {
-            const filteredRecipes = result.data
-              .filter((row: any) =>
-                row.Ingredients && row.Ingredients.toLowerCase().includes(name.toLowerCase())
-              )
-              .map((row: any) => [row.ID, row["Meal Name"], row.Ingredients]); // ← List of lists
-            setRecipes(filteredRecipes);
-          },
-        });
-      } catch (error) {
+        const recipes = await getRecommendation(name);
+        setRecipes(recipes);
+      } catch (error){
         console.error("Error fetching recipes:", error);
       }
     };
+
+    // const handleSearchRecipes = async () => {
+    //   try {
+    //     const response = await fetch("/data/food.csv"); // Replace with actual path
+    //     const csvText = await response.text();
+    //     Papa.parse(csvText, {
+    //       header: true,
+    //       dynamicTyping: true,
+    //       complete: (result) => {
+    //         const filteredRecipes = result.data
+    //           .filter((row: any) =>
+    //             row.Ingredients && row.Ingredients.toLowerCase().includes(name.toLowerCase())
+    //           )
+    //           .map((row: any) => [row.ID, row["Meal Name"], row.Ingredients]); // ← List of lists
+    //         setRecipes(filteredRecipes);
+    //       },
+    //     });
+    //   } catch (error) {
+    //     console.error("Error fetching recipes:", error);
+    //   }
+    // };
 
     const context = `This is an ingredient. The name of the ingredient is  ${name} and the description is ${description}.`
 

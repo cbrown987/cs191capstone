@@ -76,6 +76,10 @@ export async function getSearch(query: string) {
   return await getApi(`/api/search?query=${query}`)
 }
 
+export async function getRecommendation(query: string){
+  return await getApi(`/api/search/recommendation?query=${query}`)
+}
+
 export async function getAIDescription(query: string) {
   return await getApi(`/api/ai/description/${query}`)
 }
