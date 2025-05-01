@@ -181,7 +181,7 @@
         mode: '0600'
 
     - name: Build docker containers
-      shell: docker-compose build --no-cache
+      shell: docker-compose build
       args:
          chdir: "{{ app_dir }}"
       become_user: "{{ ansible_user }}"
