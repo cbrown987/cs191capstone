@@ -54,15 +54,6 @@ export const RecipeComponent: React.FC<RecipeComponentProps> = ({
         </div>
 
         <div className="md:w-1/2">
-          {description && (
-            <section>
-              <h2 className="text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
-                Description
-              </h2>
-              <p className="text-gray-700 mb-6">{description}</p>
-            </section>
-          )}
-
           <section className="mt-6">
             <h2 className="text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
               Ingredients

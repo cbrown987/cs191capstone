@@ -87,8 +87,7 @@ async def get_random_drink_recipes(limit: int = 10):
 @app.get("/ingredients/{call_id}", response_model=Ingredient)
 async def ingredients_by_id(call_id: str):
     """Get ingredient by id"""
-    ingredient = handle_ingredient_calls(call_id)
-    return ingredient
+    return handle_ingredient_calls(call_id)
 
 @app.get("/api/image", response_model=ImageURL)
 @app.get("/image", response_model=ImageURL)
@@ -104,8 +103,7 @@ async def get_image(query: str):
 @app.get("/search", response_model=SearchResult)
 async def get_search_results(query: str):
     """Get search results by query"""
-    search_results = handle_name_search_calls(query)
-    return search_results
+    return handle_name_search_calls(query)
 
 @app.get("/api/search/ingredients", response_model=SearchResult)
 @app.get("/search/ingredients", response_model=SearchResult)
@@ -206,6 +204,7 @@ def get_saved_menus(user_id: int, db: Session = Depends(database.get_db)):
         )
 
 @app.get("/status")
+@app.get("/api/status")
 async def status_report():
     return "SHHHH Hobbes is sleeping on the couch"
 

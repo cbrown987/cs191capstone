@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { callIngredientApiWithID, getAIDescription, getAISubstitutions, getImage } from "@/app/lib/api";
+import { callIngredientApiWithID, getAIDescription, getImage } from "@/app/lib/api";
 import { IngredientComponent } from "@/app/components/IngredentComponent/IngredientComponent";
+import {LoadingComponent} from "@/app/components/LoadingComponent";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [ingredientData, setIngredientData] = useState<any>(null);
@@ -38,11 +39,13 @@ export default function Page({ params }: { params: { id: string } }) {
       }
     };
 
-    fetchData();
+    if (params && params.id){
+      fetchData();
+    }
   }, [params.id]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingComponent />
   }
 
   if (error) {

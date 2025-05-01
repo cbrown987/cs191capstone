@@ -70,7 +70,10 @@ def convert_to_ingredient(item: Dict[str, Any]) -> Ingredient:
     Returns:
         An Ingredient object.
     """
-    ingredient_data = item
+    if isinstance(item.get('ingredients'), list):
+        ingredient_data = item.get('ingredients')[0]
+    else:
+        ingredient_data = item
     return Ingredient(
         id=int(ingredient_data['idIngredient']),
         name=ingredient_data['strIngredient'],

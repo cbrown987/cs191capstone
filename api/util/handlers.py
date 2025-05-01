@@ -55,7 +55,8 @@ def handle_ingredient_calls(call_id: str):
         try:
             db_class = _API_IDS[db_type]
             ingredient = getattr(db_class(), 'get_ingredient_by_id')(call_id)
-            return convert_to_ingredient(ingredient)
+            if ingredient:
+                return convert_to_ingredient(ingredient)
         except Exception as e:
             logging.error(f"Error getting ingredient: {e}")
             return None
