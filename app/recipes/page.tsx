@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getApi } from "@/app/lib/api";
 import Card from '../components/card';
+import {LoadingComponent} from "@/app/components/LoadingComponent";
 
 /**
  * Recipes page that displays both food and drink recipes
@@ -63,7 +64,7 @@ export default function RecipesPage() {
   };
 
   if (loading) {
-    return <div className="container mx-auto p-4 text-center">Loading recipes...</div>;
+    return <LoadingComponent />
   }
 
   return (

@@ -4,8 +4,6 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import SearchBar from "@/app/components/search";
 import { useRouter } from "next/navigation";
-import Image from 'next/image';
-
 
 const TopNav: React.FC = () => {
   const router = useRouter();

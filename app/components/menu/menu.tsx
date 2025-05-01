@@ -5,6 +5,7 @@ import {MenuLink} from "@/app/components/menu/menuLink";
 import {getMenu, saveMenu, getSavedMenu} from "@/app/lib/api";
 import {MenuData} from "@/app/interfaces";
 import {getUserID} from "@/app/hooks/Auth";
+import {LoadingComponent} from "@/app/components/LoadingComponent";
 
 export const Menu = () => {
         const [menuItems, setMenuItems] = useState<MenuData | null>(null);
@@ -96,10 +97,7 @@ export const Menu = () => {
 
         if (isLoading) {
             return (
-        <div className="text-center py-16 flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-4 border-[#902425]/20 border-t-[#902425] rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
-        </div>
+        <LoadingComponent />
     );
 }
 
