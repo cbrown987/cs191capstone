@@ -13,44 +13,12 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([
     { role: 'assistant', content: 'Hello! How can I help you today?' }
   ]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-
-    const userMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      console.log('Sending message:', input);
-      let data = await getAIChat(input);
-      console.log(
-        'AI Chat Response:',
-        data.text
-      )
-
-
-      setMessages(prev => [...prev, { role: 'assistant', content: data.text }]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.'
-      }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="container mx-auto p-4">

@@ -1,7 +1,6 @@
 import ast
 import asyncio
 import logging
-import uuid
 from functools import lru_cache
 from typing import List
 
@@ -12,9 +11,8 @@ from api.const import MENU_QUERY_ITEMS
 from api.endpoints import TheMealDB, TheCocktailDB
 from api.endpoints.AI.AI_base import AIBase
 from api.endpoints.DB.crud import get_saved_menus_db, save_menu_db
-from api.endpoints.DB.models import SavedMenu, UserSavedMenus, User
 from api.util.conversions import convert_to_recipe, convert_to_ingredient, convert_to_search_results, \
-    combine_search_results, get_valid_literals
+    combine_search_results
 from api.util.fastapi_types import Menu
 from api.util.filtering import ContentFilter
 

@@ -102,14 +102,22 @@ export async function getAISubstitutions(query: string) {
   return await getApi(`/api/ai/substitutions/${query}`)
 }
 
-export async function getAIChat(query: string, context?: string) {
-  const sanitizedQuery = encodeURIComponent(query);
-  let url = `/api/ai/chat?message=${sanitizedQuery}`;
-  if (context) {
-    const sanitizedContext = encodeURIComponent(context);
-    url += `&context=${sanitizedContext}`;
+export async function getAIChat(query: string, context: object) {
+  const response = await fetch(`/api/ai/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      text: query,
+      context: context
+    }),
+  });
+    if (!response.ok) {
+    console.error(`Chat API error: ${response.status} ${response.statusText}`);
+    throw new Error('Failed to get AI chat response');
   }
-  return await getApi(url);
+  return response.json();
 }
 
 export async function getMenu() {

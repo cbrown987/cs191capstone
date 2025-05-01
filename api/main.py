@@ -12,7 +12,7 @@ from api.endpoints.photos.pixabay import Pixabay
 from api.util.conversions import Recipe, convert_to_recipe, \
     convert_to_search_results, combine_search_results, Ingredient, SearchResult
 from api.util.fastapi_types import Menu, ImageURL, AIResponseText, LoginRequest, User, UserCreate, SaveRecipeRequest, \
-    SaveMenuRequest
+    SaveMenuRequest, ChatMessage, ChatContext
 from api.util.filtering import ContentFilter
 from api.util.handlers import handle_id_calls, handle_ingredient_calls, handle_name_search_calls, handle_menu_calls, \
     handle_save_menu, handle_get_menus
@@ -132,13 +132,12 @@ async def get_ai_substitution(query: str):
     substitution = aibase.query_for_substitutions(query)
     return AIResponseText(text=substitution)
 
-@app.get("/api/ai/chat", response_model=AIResponseText)
-@app.get("/ai/chat", response_model=AIResponseText)
-async def ai_chat(message: str, context: str = ""):
+@app.post("/api/ai/chat", response_model=AIResponseText)
+@app.post("/ai/chat", response_model=AIResponseText)
+async def ai_chat(message: ChatMessage):
     """Get AI chat response by message"""
-    # TODO: Change this to take a json body message. These URL's are huge with context.
     aibase = await get_aibase()
-    response_message = aibase.chat(message, context if context not in ["", None] else None)
+    response_message = aibase.chat(message.text, message.context)
     return AIResponseText(text=response_message)
 
 @app.post("/api/auth/login", response_model=User)

@@ -25,7 +25,11 @@ export const ChatbotComponent = ({height = '60vh', context = ''}: ChatbotProps) 
 
     try {
       console.log('Sending message:', input);
-      let data = await getAIChat(input, context);
+      let send_context: object = {
+        "context": context || "",
+        "previous_messages": JSON.stringify(messages) || ""
+      }
+      let data = await getAIChat(input, send_context);
       console.log(
         'AI Chat Response:',
         data.text

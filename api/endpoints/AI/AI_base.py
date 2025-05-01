@@ -1,8 +1,28 @@
 import openai
 from api.config import Config
 from api.endpoints.AI.system_prompts import DESCRIPTION_SYSTEM_PROMPT, SUBSTITUTION_SYSTEM_PROMPT, \
-    MENU_BUILDER_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT, CHAT_CONTEXT_SYSTEM_PROMPT
+    MENU_BUILDER_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT, CHAT_CONTEXT_SYSTEM_PROMPT, CHAT_PREVIOUS_MESSAGES_PROMPT, \
+    CHAT_ALL_CONTEXT_PROMPT
+from api.util.fastapi_types import ChatContext
 
+def _determine_chat_system_prompt(context: ChatContext = None):
+    if context is None:
+        return CHAT_SYSTEM_PROMPT
+
+    has_context = bool(context.context)
+    has_previous_messages = bool(context.previous_messages)
+
+    if has_context and has_previous_messages:
+        return CHAT_ALL_CONTEXT_PROMPT.format(
+            CONTEXT=context.context,
+            PREVIOUS_MESSAGES=context.previous_messages
+        )
+    elif has_context:
+        return CHAT_CONTEXT_SYSTEM_PROMPT.format(CONTEXT=context.context)
+    elif has_previous_messages:
+        return CHAT_PREVIOUS_MESSAGES_PROMPT.format(PREVIOUS_MESSAGES=context.previous_messages)
+    else:
+        return CHAT_SYSTEM_PROMPT
 
 class AIBase:
     def __init__(self):
@@ -49,13 +69,14 @@ class AIBase:
             user_query=base_query
         )
 
-    def chat(self, user_message, context=None):
-        SYSTEM_PROMPT = CHAT_SYSTEM_PROMPT
-        if context:
-            SYSTEM_PROMPT = CHAT_CONTEXT_SYSTEM_PROMPT.format(CONTEXT=context)
+    def chat(self, user_message, context: ChatContext=None):
+        SYSTEM_PROMPT = _determine_chat_system_prompt(context)
         return self._query(
             system_query=SYSTEM_PROMPT,
             user_query=user_message,
         )
+
+
+
 
 

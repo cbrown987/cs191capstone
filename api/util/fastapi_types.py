@@ -45,11 +45,19 @@ class _SearchResult(BaseModel):
 class SearchResult(BaseModel):
     results: List[_SearchResult]
 
+class ChatContext(BaseModel):
+    context: str
+    previous_messages: str
+
+class ChatMessage(BaseModel):
+    text: str
+    context: ChatContext
+
+
 class AIResponseText(BaseModel):
     text: str
 
 # AWS schemas
-
 class UserBase(BaseModel):
     username: str
     email: str
