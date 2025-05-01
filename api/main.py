@@ -87,7 +87,6 @@ async def get_random_drink_recipes(limit: int = 10):
 @app.get("/ingredients/{call_id}", response_model=Ingredient)
 async def ingredients_by_id(call_id: str):
     """Get ingredient by id"""
-    print("call id: " + call_id)
     ingredient = handle_ingredient_calls(call_id)
     return ingredient
 

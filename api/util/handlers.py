@@ -156,7 +156,7 @@ def handle_get_menus(user_id, db):
                 pydantic_menu.name = menu.name
             pydantic_menus.append(pydantic_menu)
         except ValidationError as e:
-            print(f"Validation Error converting Saved_menu: {e}")
+            logging.error(f"Validation Error converting Saved_menu: {e}")
         except Exception as e:
-            print(f"Unexpected Error converting Saved_menu: {e}")
+            logging.error(f"Unexpected Error converting Saved_menu: {e}")
     return pydantic_menus
