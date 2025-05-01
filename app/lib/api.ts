@@ -79,6 +79,9 @@ async function callWithID(basePath: string, api: string, id: string): Promise<an
   return getApi(relativePath, revalidate);
 }
 
+export async function getRecommendation(query: string){
+  return await getApi(`/api/search/recommendation?query=${query}`)
+}
 
 export async function getImage(query: string) {
   const result = query.replace(/\s+/g, '+');
