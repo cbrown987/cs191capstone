@@ -1,7 +1,3 @@
-// @ts-ignore
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-
 const internalApiUrl = 'http://api:8000';
 
 export async function getApi(url: string, revalidateSeconds?: number): Promise<any> {
