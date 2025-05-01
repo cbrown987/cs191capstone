@@ -1,5 +1,3 @@
-import {IngredientComponent} from "@/app/components/IngredentComponent/IngredientComponent";
-
 export interface CardProps {
     imageSrc: string;
     title: string;

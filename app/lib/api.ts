@@ -47,8 +47,7 @@ export async function getApi(url: string, revalidateSeconds?: number): Promise<a
     }
 
     console.log(`Fetched ${fullUrl}`);
-    const r_json = await response.json();
-    return r_json;
+    return await response.json();;
 
   } catch (error) {
     console.error(`Error fetching ${fullUrl} (Context: ${isServerSide ? 'Server' : 'Client'}):`, error);
