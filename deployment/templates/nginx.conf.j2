@@ -6,12 +6,6 @@ server {
 
     # Redirect to HTTPS
     return 301 https://$host$request_uri;
-
-    # Basic DDoS protection
-    limit_req_zone $binary_remote_addr zone=ip:10m rate=5r/s;
-    limit_req zone=ip burst=10 nodelay;
-    limit_conn_zone $binary_remote_addr zone=addr:10m;
-    limit_conn addr 100;
 }
 
 # HTTPS - Serve frontend and API
@@ -38,17 +32,6 @@ server {
     add_header X-XSS-Protection "1; mode=block";
     add_header X-Content-Type-Options "nosniff";
 
-    # DDoS protection
-    client_body_timeout 10s;
-    client_header_timeout 10s;
-    client_max_body_size 100k;
-    limit_req_zone $binary_remote_addr zone=https:10m rate=10r/s;
-
-    # Rate limiting
-    limit_req zone=https burst=20 nodelay;
-    limit_conn_zone $binary_remote_addr zone=https_conn:10m;
-    limit_conn https_conn 30;
-
     # Logs
     access_log /var/log/nginx/access.log;
     error_log /var/log/nginx/error.log;
@@ -65,7 +48,6 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
         proxy_buffering off;
-        limit_req zone=https burst=10 nodelay;
     }
 
     # API service
@@ -80,7 +62,7 @@ server {
             add_header 'Content-Length' 0;
             return 204;
         }
-        
+
         proxy_pass http://api:{{ api_port }}/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -90,9 +72,6 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
-
-        # API-specific rate limiting (more restrictive)
-        limit_req zone=https burst=5 nodelay;
     }
 
     location /api {
