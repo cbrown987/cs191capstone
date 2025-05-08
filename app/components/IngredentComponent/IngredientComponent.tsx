@@ -64,7 +64,8 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
     const handleSearchRecipes = async () => {
       try {
         const recipes = await getRecommendation(name);
-        setRecipes(recipes);
+        console.log(recipes)
+        setRecipes(recipes['results']);
       } catch (error){
         console.error("Error fetching recipes:", error);
       }
@@ -132,6 +133,7 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
 
       {/* New Button for Recipe Search */}
       <section className="mt-6">
+
         <button
           onClick={handleSearchRecipes}
           className="bg-[#902425] hover:bg-[#701a1b] text-white font-bold py-2 px-4 rounded"
@@ -143,15 +145,16 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recipes.map((recipe: any, index: number) => (
               <a
-                href={`/recipes/${recipe.type}/${recipe.id}`}
-                key={`recipe-${recipe.type}-${index}`}
+
+                href={`/recipes/${recipe.database === 'M' ? 'food/' : 'drink/'}${recipe.recipe.id}`}
+                key={`recipe-${recipe.database}-${index}`}
                 className="transform hover:scale-105 transition-transform duration-200"
               >
                 <Card
-                  imageSrc={recipe.imageURL || '/images/default-recipe.jpg'}
-                  title={recipe.title}
-                  type={recipe.type}
-                  id={recipe.id}
+                  imageSrc={recipe.recipe.imageURL || '/images/default-recipe.jpg'}
+                  title={recipe.recipe.title}
+                  type={recipe.recipe.type}
+                  id={recipe.recipe.id}
                 />
               </a>
             ))}
