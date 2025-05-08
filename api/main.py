@@ -111,10 +111,7 @@ async def get_search_ingredient(query: str):
     """Get search ingredient by query"""
     mealdb = await get_themealdb()
     search_results = mealdb.search_by_ingredient(query)
-    r = []
-    for x in search_results:
-        r.append(convert_to_search_results(x))
-    return combine_search_results(*r)
+    return convert_to_search_results(search_results)
 
 @app.get("/api/search/ingredients", response_model=SearchResult)
 @app.get("/search/ingredients", response_model=SearchResult)

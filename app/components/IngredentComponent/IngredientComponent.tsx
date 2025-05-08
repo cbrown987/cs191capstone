@@ -52,7 +52,6 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
                   setSubstitutes(JSON.stringify(fetchedSubstitutes));
               }
           } else {
-              // For any other type, convert to string
               setSubstitutes(String(fetchedSubstitutes));
           }
       } catch (error) {
@@ -109,13 +108,14 @@ export const IngredientComponent: React.FC<IngredientComponentProps> = ({
             <h2 className="text-xl font-serif tracking-wide uppercase mb-5 text-[#902425]">
               Substitutes
             </h2>
+            {!substitutes && (
             <button
               onClick={handleGetSubstitutes}
               className="bg-[#902425] hover:bg-[#701a1b] text-white font-bold py-2 px-4 rounded"
               disabled={loading}
             >
               {loading ? "Loading substitutes..." : "Get Substitutes"}
-            </button>
+            </button>)}
             {substitutes && (
               <div className="mt-4">
                 <div
